@@ -5,6 +5,24 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
+      "@/hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@/state/*": [
+        "./src/state/*"
+      ],
+      "@/types/*": [
+        "./src/types/*"
+      ],
+      "@/services/*": [
+        "./src/services/*"
+      ],
+      "@/screens/*": [
+        "./src/screens/*"
       ]
     }
   },
@@ -12,6 +30,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
   ]
 }
