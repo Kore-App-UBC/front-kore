@@ -1,6 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { FlatList, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from '../components/themed-text';
+import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
 import { SubmissionQueueItem } from '../types';
 
@@ -45,20 +47,20 @@ export default function SubmissionQueueScreen() {
     >
       <View className="flex-row justify-between items-start">
         <View className="flex-1">
-          <Text className="text-lg font-semibold text-gray-800">{item.patientName}</Text>
-          <Text className="text-gray-600">{item.exerciseName}</Text>
-          <Text className="text-xs text-gray-400 mt-1">
+          <ThemedText className="text-lg font-semibold">{item.patientName}</ThemedText>
+          <ThemedText className="text-gray-600">{item.exerciseName}</ThemedText>
+          <ThemedText className="text-xs text-gray-400 mt-1">
             Submitted: {new Date(item.submittedAt).toLocaleString()}
-          </Text>
+          </ThemedText>
         </View>
         <View className={`px-2 py-1 rounded ${
           item.status === 'pending' ? 'bg-yellow-100' : 'bg-green-100'
         }`}>
-          <Text className={`text-xs font-medium ${
+          <ThemedText className={`text-xs font-medium ${
             item.status === 'pending' ? 'text-yellow-800' : 'text-green-800'
           }`}>
             {item.status === 'pending' ? 'Pending' : 'Reviewed'}
-          </Text>
+          </ThemedText>
         </View>
       </View>
     </TouchableOpacity>
@@ -66,33 +68,33 @@ export default function SubmissionQueueScreen() {
 
   if (loading && !refreshing) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-gray-600">Loading submissions...</Text>
-      </View>
+      <ThemedView className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg">Loading submissions...</ThemedText>
+      </ThemedView>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-red-500 mb-4">{error}</Text>
+      <ThemedView className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg text-red-500 mb-4">{error}</ThemedText>
         <TouchableOpacity
           className="px-4 py-2 bg-blue-500 rounded"
           onPress={fetchSubmissions}
         >
-          <Text className="text-white">Retry</Text>
+          <ThemedText className="text-white">Retry</ThemedText>
         </TouchableOpacity>
-      </View>
+      </ThemedView>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <Text className="text-2xl font-bold p-4 text-gray-800">Submission Queue</Text>
+    <ThemedView className="flex-1">
+      <ThemedText type="title" className="p-4">Submission Queue</ThemedText>
       {submissions.length === 0 ? (
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-lg text-gray-500">No submissions to review</Text>
-        </View>
+        <ThemedView className="flex-1 justify-center items-center">
+          <ThemedText className="text-lg">No submissions to review</ThemedText>
+        </ThemedView>
       ) : (
         <FlatList
           data={submissions}
@@ -103,6 +105,6 @@ export default function SubmissionQueueScreen() {
           }
         />
       )}
-    </View>
+    </ThemedView>
   );
 }

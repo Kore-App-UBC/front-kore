@@ -181,7 +181,7 @@ export interface UpdatePatientData {
 }
 
 export interface AssignPhysioData {
-  physioId: string;
+  physiotherapistId: string;
 }
 
 export interface PrescribeExerciseData {
@@ -192,6 +192,7 @@ export interface PrescribeExerciseData {
 export interface CreatePhysioData {
   name: string;
   email: string;
+  password: string;
   phone?: string;
 }
 
@@ -202,9 +203,16 @@ export interface UpdatePhysioData {
 }
 
 export interface Physio {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  createdAt: string;
+  id: string; // Physiotherapist profile ID
+  userId: string; // User ID
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export interface PhysioDropdownOption {
+  label: string;
+  value: string;
 }

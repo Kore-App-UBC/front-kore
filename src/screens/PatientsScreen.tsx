@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import { ThemedText } from '../components/themed-text';
+import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
 import { Patient } from '../types';
 
@@ -33,50 +35,41 @@ export default function PatientsScreen() {
   };
 
   const renderPatient = ({ item }: { item: Patient }) => (
-    <TouchableOpacity className="bg-white p-4 mb-2 mx-4 rounded-lg shadow-sm border border-gray-200">
-      <Text className="text-lg font-semibold text-gray-800">{item.name}</Text>
-      <Text className="text-gray-600">{item.email}</Text>
-      {item.phone && <Text className="text-gray-500">{item.phone}</Text>}
-      {item.dateOfBirth && (
-        <Text className="text-gray-500">
-          DOB: {new Date(item.dateOfBirth).toLocaleDateString()}
-        </Text>
-      )}
-      <Text className="text-xs text-gray-400 mt-1">
-        Assigned: {new Date(item.assignedAt).toLocaleDateString()}
-      </Text>
+    <TouchableOpacity className="bg-transparent p-4 mb-2 mx-4 rounded-lg shadow-sm border border-gray-200 min-w-[50vw]">
+      <ThemedText className="text-lg font-semibold">{item.user.name}</ThemedText>
+      <ThemedText className="text-gray-600">{item.user.email}</ThemedText>
     </TouchableOpacity>
   );
 
   if (loading && !refreshing) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-gray-600">Loading patients...</Text>
-      </View>
+      <ThemedView className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg">Loading patients...</ThemedText>
+      </ThemedView>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-red-500 mb-4">{error}</Text>
+      <ThemedView className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg text-red-500 mb-4">{error}</ThemedText>
         <TouchableOpacity
           className="px-4 py-2 bg-blue-500 rounded"
           onPress={fetchPatients}
         >
-          <Text className="text-white">Retry</Text>
+          <ThemedText className="text-white">Retry</ThemedText>
         </TouchableOpacity>
-      </View>
+      </ThemedView>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <Text className="text-2xl font-bold p-4 text-gray-800">My Patients</Text>
+    <ThemedView className="flex-1">
+      <ThemedText type="title" className="p-4">My Patients</ThemedText>
       {patients.length === 0 ? (
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-lg text-gray-500">No patients assigned</Text>
-        </View>
+        <ThemedView className="flex-1 justify-center items-center">
+          <ThemedText className="text-lg">No patients assigned</ThemedText>
+        </ThemedView>
       ) : (
         <FlatList
           data={patients}
@@ -87,6 +80,6 @@ export default function PatientsScreen() {
           }
         />
       )}
-    </View>
+    </ThemedView>
   );
 }

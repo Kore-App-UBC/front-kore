@@ -1,13 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import Dropdown from '../components/Dropdown';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
-import { AssignPhysioData, CreatePatientData, Exercise, Patient, Physio, PrescribeExerciseData, UpdatePatientData } from '../types';
+import { AssignPhysioData, CreatePatientData, Exercise, Patient, Physio, PhysioDropdownOption, PrescribeExerciseData, UpdatePatientData } from '../types';
 
 export default function ManagePatientsScreen() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [physios, setPhysios] = useState<Physio[]>([]);
+  const [physioOptions, setPhysioOptions] = useState<PhysioDropdownOption[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
@@ -23,7 +25,7 @@ export default function ManagePatientsScreen() {
     phone: '',
     dateOfBirth: '',
   });
-  const [assignForm, setAssignForm] = useState<AssignPhysioData>({ physioId: '' });
+  const [assignForm, setAssignForm] = useState<AssignPhysioData>({ physiotherapistId: '' });
   const [prescribeForm, setPrescribeForm] = useState<PrescribeExerciseData>({
     exerciseId: '',
     notes: '',
@@ -47,10 +49,21 @@ export default function ManagePatientsScreen() {
     }
   }, []);
 
-  // Fetch patients on component mount
+  const fetchPhysioOptions = useCallback(async () => {
+    try {
+      const options = await apiService.getPhysioDropdown();
+      setPhysioOptions(options);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch physiotherapists');
+      console.error('Error fetching physio options:', error);
+    }
+  }, []);
+
+  // Fetch patients and physio options on component mount
   useEffect(() => {
     fetchPatients();
-  }, [fetchPatients]);
+    fetchPhysioOptions();
+  }, [fetchPatients, fetchPhysioOptions]);
 
   const openModal = (type: 'create' | 'assign' | 'prescribe' | 'edit', patient?: Patient) => {
     setModalType(type);
@@ -72,9 +85,13 @@ export default function ManagePatientsScreen() {
     setSelectedPatient(null);
     // Reset forms
     setCreateForm({ name: '', email: '', password: '', phone: '', dateOfBirth: '' });
-    setAssignForm({ physioId: '' });
+    setAssignForm({ physiotherapistId: '' });
     setPrescribeForm({ exerciseId: '', notes: '' });
     setEditForm({ name: '', email: '', password: '' });
+  };
+
+  const handlePhysioSelect = (physioId: string) => {
+    setAssignForm({ physiotherapistId: physioId });
   };
 
   const handleCreatePatient = async () => {
@@ -98,7 +115,7 @@ export default function ManagePatientsScreen() {
   };
 
   const handleAssignPhysio = async () => {
-    if (!selectedPatient || !assignForm.physioId) {
+    if (!selectedPatient || !assignForm.physiotherapistId) {
       Alert.alert('Error', 'Please select a physio');
       return;
     }
@@ -107,6 +124,7 @@ export default function ManagePatientsScreen() {
       setLoading(true);
       await apiService.assignPhysioToPatient(selectedPatient.id, assignForm);
       Alert.alert('Success', 'Physio assigned successfully');
+      fetchPatients();
       closeModal();
     } catch (error) {
       Alert.alert('Error', 'Failed to assign physio');
@@ -208,11 +226,12 @@ export default function ManagePatientsScreen() {
           )}
 
           {modalType === 'assign' && (
-            <TextInput
-              className="border border-gray-300 dark:border-gray-600 rounded p-3 mb-4 text-black dark:text-white"
-              placeholder="Physio ID"
-              value={assignForm.physioId}
-              onChangeText={(text) => setAssignForm({ physioId: text })}
+            <Dropdown
+              options={physioOptions}
+              selectedValue={assignForm.physiotherapistId}
+              onValueChange={handlePhysioSelect}
+              placeholder="Select a Physiotherapist"
+              className="mb-4"
             />
           )}
 
@@ -259,7 +278,7 @@ export default function ManagePatientsScreen() {
             </>
           )}
 
-          <ThemedView className="flex-row justify-between">
+          <ThemedView className="flex-row justify-between z-[-1]">
             <TouchableOpacity
               className="bg-gray-300 dark:bg-gray-600 px-4 py-2 rounded"
               onPress={closeModal}
@@ -316,6 +335,11 @@ export default function ManagePatientsScreen() {
             <ThemedView key={patient.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-4 shadow">
               <ThemedText type="defaultSemiBold" className="mb-2">{patient.user.name}</ThemedText>
               <ThemedText className="mb-3">{patient.user.email}</ThemedText>
+              {
+                patient.physiotherapist?.user?.name 
+                && 
+                <ThemedText className="mb-3 italic text-sm !text-gray-500">Responsible Physiotherapist: {patient.physiotherapist?.user?.name}</ThemedText>
+              }
 
               <ThemedView className="flex-row space-x-2 mb-2">
                 <TouchableOpacity

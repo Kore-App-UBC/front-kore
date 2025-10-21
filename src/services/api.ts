@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { AssignPhysioData, AuthResponse, CreatePatientData, CreatePhysioData, Exercise, FeedbackData, Metrics, Patient, Physio, PrescribeExerciseData, Submission, SubmissionDetail, SubmissionQueueItem, UpdatePatientData, UpdatePhysioData, User } from '../types';
+import { AssignPhysioData, AuthResponse, CreatePatientData, CreatePhysioData, Exercise, FeedbackData, Metrics, Patient, Physio, PhysioDropdownOption, PrescribeExerciseData, Submission, SubmissionDetail, SubmissionQueueItem, UpdatePatientData, UpdatePhysioData, User } from '../types';
 import { storageService } from '../utils/storage';
 
 /**
@@ -10,7 +10,7 @@ import { storageService } from '../utils/storage';
  */
 
 // Configuration
-const API_BASE_URL = 'http://localhost:3000'; // Replace with your actual API URL
+const API_BASE_URL = 'http://10.128.37.54:3000'; // Replace with your actual API URL
 const API_TIMEOUT = 10000; // 10 seconds
 
 // API Error types
@@ -264,6 +264,14 @@ class ApiService {
 
   async getPatients(): Promise<Patient[]> {
     return this.get<Patient[]>('/manager/patients');
+  }
+
+  async getPhysios(): Promise<Physio[]> {
+    return this.get<Physio[]>('/manager/physiotherapists');
+  }
+
+  async getPhysioDropdown(): Promise<PhysioDropdownOption[]> {
+    return this.get<PhysioDropdownOption[]>('/manager/physiotherapists/profile/dropdown');
   }
 
   async createPatient(patientData: CreatePatientData): Promise<Patient> {
