@@ -15,7 +15,7 @@ import com.google.mediapipe.tasks.core.OutputHandler
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarker
 import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarkerResult
-import com.mrousavy.camera.frameprocessors.Frame
+import com.facebook.react.bridge.Promise
 
 class HandLandmarks(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -102,6 +102,37 @@ class HandLandmarks(reactContext: ReactApplicationContext) : ReactContextBaseJav
             val errorParams = Arguments.createMap()
             errorParams.putString("error", e.message)
             sendEvent("onHandLandmarksError", errorParams)
+        }
+    }
+
+    @ReactMethod
+    fun processFrame(frameData: String, promise: Promise) {
+        if (HandLandmarkerHolder.handLandmarker == null) {
+            promise.reject("HandLandmarkerNotInitialized", "HandLandmarker is not initialized")
+            return
+        }
+
+        try {
+            // Convert frameData to Bitmap or MPImage
+            // Assuming frameData is base64 encoded bitmap or similar
+            // For now, we'll assume it's a bitmap byte array or something
+            // You might need to adjust this based on how frames are passed
+            val bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                android.util.Base64.decode(frameData, android.util.Base64.DEFAULT),
+                0,
+                android.util.Base64.decode(frameData, android.util.Base64.DEFAULT).size
+            )
+            val mpImage: MPImage = BitmapImageBuilder(bitmap).build()
+
+            val timestamp = System.currentTimeMillis()
+
+            // Call detectAsync
+            HandLandmarkerHolder.handLandmarker?.detectAsync(mpImage, timestamp)
+
+            promise.resolve("Frame processed successfully")
+        } catch (e: Exception) {
+            Log.e("HandLandmarks", "Error processing frame: ${e.message}")
+            promise.reject("FrameProcessingError", e.message)
         }
     }
 }

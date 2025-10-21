@@ -16,7 +16,6 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
 
-import com.renatex314.korefront.handlandmarksframeprocessor.HandLandmarksFrameProcessorPluginPackage
 import com.renatex314.korefront.HandLandmarksPackage
 
 class MainApplication : Application(), ReactApplication {
@@ -27,7 +26,6 @@ class MainApplication : Application(), ReactApplication {
         override fun getPackages(): List<ReactPackage> {
           val packages = PackageList(this).packages.toMutableList()
 
-          packages.add(HandLandmarksFrameProcessorPluginPackage())
           packages.add(HandLandmarksPackage())
 
           return packages
