@@ -1,6 +1,5 @@
 import { NativeModules } from "react-native";
 import { CameraProps, Frame, useFrameProcessor, VisionCameraProxy } from "react-native-vision-camera";
-import { isWorkletFunction } from "react-native-worklets";
 import { useRunOnJS } from "react-native-worklets-core";
 
 export type MediapipePoint = {
@@ -34,7 +33,7 @@ const detectPose = (frame: Frame): MediapipePoint[] => {
 
 export type OnPoseDetectionCallback = (landmarks: MediapipePoint[]) => void;
 export const usePoseDetectionProcessor = (callback: OnPoseDetectionCallback, dependencies: React.DependencyList) => {
-  const landmarkCallback = !isWorkletFunction(callback) ? useRunOnJS(callback, dependencies) : callback;
+  const landmarkCallback = useRunOnJS(callback, dependencies);
 
   return useFrameProcessor((frame) => {
     'worklet';

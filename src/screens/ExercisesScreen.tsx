@@ -1,5 +1,7 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList } from 'react-native';
+import LogoutButton from '../components/LogoutButton';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
@@ -9,6 +11,7 @@ export default function ExercisesScreen() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchExercises();
@@ -85,6 +88,9 @@ export default function ExercisesScreen() {
           contentContainerStyle={{ paddingBottom: 20 }}
         />
       )}
+      <ThemedView className="p-4">
+        <LogoutButton onLogout={() => router.replace('/(auth)/login')} />
+      </ThemedView>
     </ThemedView>
   );
 }

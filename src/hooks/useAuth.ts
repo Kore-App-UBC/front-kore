@@ -11,16 +11,14 @@ export const useAuth = () => {
 
     try {
       const response = await apiService.login(email, password);
-      // Store token securely
       await storageService.setItem('auth-token', response.token);
-      // Update store with user data
       login(response.user);
 
       return { success: true };
     } catch (err: any) {
-      console.error(err);
-      const errorMessage = err.response?.data?.message || 'Login failed';
+      const errorMessage = err.responseData?.error;
       setError(errorMessage);
+
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
@@ -34,7 +32,6 @@ export const useAuth = () => {
     } catch (error) {
       console.error('Logout API call failed:', error);
     } finally {
-      // Always clear local data
       await storageService.removeItem('auth-token');
       logout();
       setLoading(false);
@@ -44,9 +41,10 @@ export const useAuth = () => {
   const initializeAuth = async () => {
     try {
       const token = await storageService.getItem('auth-token');
+
       if (token && !isAuthenticated) {
-        // Decode the token to get user info and set it in the store
         const user = await apiService.getUserFromToken(token);
+
         if (user) {
           login(user);
         }

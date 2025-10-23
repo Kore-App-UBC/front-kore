@@ -1,11 +1,14 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, View } from 'react-native';
+import LogoutButton from '../components/LogoutButton';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { useAuthStore } from '../state/authStore';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated } = useAuthStore();
+  const router = useRouter();
 
   if (!isAuthenticated || !user) {
     return (
@@ -55,6 +58,10 @@ export default function ProfileScreen() {
             As a physiotherapist, you can manage your assigned patients, review exercise submissions,
             and provide feedback to help your patients progress in their rehabilitation.
           </ThemedText>
+        </View>
+
+        <View className="mt-6">
+          <LogoutButton onLogout={() => router.replace('/(auth)/login')} />
         </View>
       </ThemedView>
     </ScrollView>

@@ -1,5 +1,7 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView } from 'react-native';
+import LogoutButton from '../components/LogoutButton';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
@@ -9,6 +11,7 @@ export default function MetricsScreen() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchMetrics();
@@ -84,6 +87,10 @@ export default function MetricsScreen() {
             </ThemedView>
           </ThemedView>
         )}
+
+        <ThemedView className="mt-6">
+          <LogoutButton onLogout={() => router.replace('/(auth)/login')} />
+        </ThemedView>
       </ThemedView>
     </ScrollView>
   );

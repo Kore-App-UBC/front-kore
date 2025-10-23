@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import Toast from "react-native-toast-message";
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { useAuth } from '../hooks/useAuth';
@@ -49,11 +50,22 @@ export default function LoginScreen() {
 
      if (!isValid) return;
 
-     const result = await signIn(email, password);
-     if (result.success) {
-       // Navigation will be handled automatically by RootNavigator
-     } else {
-       // Error is already handled by the hook and displayed in UI
+     try {
+      const result = await signIn(email, password);
+
+      if (!result.success) {
+        Toast.show({
+          type: 'error',
+          text1: 'Login Failed',
+          text2: result.error || 'An error occurred during login. Please try again.',
+        });
+      }
+     } catch {
+      Toast.show({
+         type: 'error',
+         text1: 'Login Failed',
+         text2: 'An error occurred during login. Please try again.',
+       });
      }
    };
 

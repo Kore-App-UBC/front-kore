@@ -10,7 +10,7 @@ import { storageService } from '../utils/storage';
  */
 
 // Configuration
-const API_BASE_URL = 'http://10.128.37.54:3000'; // Replace with your actual API URL
+const API_BASE_URL = 'http://172.17.1.174:3000'; // Replace with your actual API URL
 const API_TIMEOUT = 10000; // 10 seconds
 
 // API Error types
@@ -18,6 +18,7 @@ export interface ApiError {
   message: string;
   status?: number;
   code?: string;
+  responseData?: any;
 }
 
 export interface ApiResponse<T> {
@@ -213,10 +214,12 @@ class ApiService {
       const axiosError = error;
       const status = axiosError.response?.status;
       const message = axiosError.response?.data?.message || axiosError.message || 'An error occurred';
+      const responseData = axiosError.response?.data;
 
       return {
         message,
         status,
+        responseData,
         code: axiosError.code,
       };
     }
