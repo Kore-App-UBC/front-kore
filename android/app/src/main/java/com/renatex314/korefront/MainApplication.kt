@@ -16,7 +16,7 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
 
-import com.renatex314.korefront.PoseLandmarksPackage
+import com.renatex314.korefront.KorefrontPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -26,7 +26,7 @@ class MainApplication : Application(), ReactApplication {
         override fun getPackages(): List<ReactPackage> {
           val packages = PackageList(this).packages.toMutableList()
 
-          packages.add(PoseLandmarksPackage())
+          packages.add(KorefrontPackage())
 
           return packages
         }

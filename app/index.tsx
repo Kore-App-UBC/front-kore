@@ -1,165 +1,126 @@
-import { Camera, CameraView } from 'expo-camera';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, NativeEventEmitter, NativeModules, StyleSheet, Text, View } from 'react-native';
-import { Circle, Line, Svg } from "react-native-svg";
+import { cameraComponentProps, MediapipePoint, usePoseDetectionProcessor } from '@/src/utils/poseDetection';
+import { Canvas, Line } from '@shopify/react-native-skia';
+import React, { useState } from 'react';
+import { LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
+import { Camera, useCameraDevice, useCameraPermission } from "react-native-vision-camera";
+
+interface ContainerSize {
+  width: number;
+  height: number;
+}
 
 export default function Index() {
-  const [cameraPermissionWasGranted, setCameraPermissionWasGranted] = useState(false);
-  const [currentPose, setCurrentPose] = useState<any>(null);
-  const cameraRef = useRef<CameraView>(null);
-  const intervalRef = useRef<number | null>(null);
-
-  const { PoseLandmarks } = NativeModules;
-  const poseLandmarksEmitter = new NativeEventEmitter(PoseLandmarks);
-
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+  const device = useCameraDevice('back')
+  const { hasPermission } = useCameraPermission()
   
-  const requestCameraPermissions = useCallback(async () => {
-    const result = await Camera.requestCameraPermissionsAsync();
+  const [containerSize, setContainerSize] = useState<ContainerSize | null>(null);
+  const [landmarks, setLandmarks] = useState<MediapipePoint[]>([]);
 
-    setCameraPermissionWasGranted(result.granted);
+  if (!hasPermission) return <Text>No permission</Text>;
+  if (device == null) return <Text>No camera</Text>;
+
+  const onLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setContainerSize({ width, height });
+  };
+
+  const poseDetectionProcessor = usePoseDetectionProcessor((detectedLandmarks) => {
+    setLandmarks(detectedLandmarks);
   }, []);
+
+  const drawSkeleton = () => {
+    if (landmarks.length === 0 || !containerSize) return null;
+
+    const { width: containerWidth, height: containerHeight } = containerSize;
+    const lines: React.JSX.Element[] = [];
+    const connections = [
+  // Face
+  [8, 6],   // Right ear to right eye outer
+  [6, 5],   // Right eye outer to right eye
+  [5, 4],   // Right eye to right eye inner
+  [4, 0],   // Right eye inner to nose
+  [0, 1],   // Nose to left eye inner
+  [1, 2],   // Left eye inner to left eye
+  [2, 3],   // Left eye to left eye outer
+  [3, 7],   // Left eye outer to left ear
+  [10, 9],  // Mouth right to mouth left
+
+  // Torso
+  [11, 12], // Shoulders
+  [11, 23], // Left shoulder to left hip
+  [12, 24], // Right shoulder to right hip
+  [23, 24], // Hips
+
+  // Left Arm
+  [11, 13], // Left shoulder to left elbow
+  [13, 15], // Left elbow to left wrist
   
-  useEffect(() => {
-    requestCameraPermissions();
-    PoseLandmarks.initModel();
+  // Right Arm
+  [12, 14], // Right shoulder to right elbow
+  [14, 16], // Right elbow to right wrist
 
-    const statusSubscription = poseLandmarksEmitter.addListener('onPoseLandmarksStatus', (event: any) => {
-      console.log('Pose Landmarks Status:', event.status);
-    });
+  // Left Leg
+  [23, 25], // Left hip to left knee
+  [25, 27], // Left knee to left ankle
 
-    const errorSubscription = poseLandmarksEmitter.addListener('onPoseLandmarksError', (event: any) => {
-      console.error('Pose Landmarks Error:', event.error);
-    });
+  // Right Leg
+  [24, 26], // Right hip to right knee
+  [26, 28], // Right knee to right ankle
+];
 
-    const detectionSubscription = poseLandmarksEmitter.addListener('onPoseLandmarksDetected', (event: any) => {
-      console.log('Detected Poses:', event.landmarks);
-      if (event.landmarks && event.landmarks.length > 0) {
-        setCurrentPose(event.landmarks[0]);
-      }
-    });
+    connections.forEach(([start, end]) => {
+      const startPoint = landmarks[start];
+      const endPoint = landmarks[end];
 
-    return () => {
-      statusSubscription.remove();
-      errorSubscription.remove();
-      detectionSubscription.remove();
-    };
-  }, [requestCameraPermissions]);
+      if (startPoint && endPoint) {
+        // --- COORDINATE TRANSFORMATION LOGIC ---
 
-  useEffect(() => {
-    if (cameraPermissionWasGranted) {
-      // Start processing frames every second
-      intervalRef.current = setInterval(async () => {
-        if (cameraRef.current) {
-          try {
-            const photo = await cameraRef.current.takePictureAsync({ 
-              base64: true,
-              // fastMode: true,
-              shutterSound: false,
-              skipProcessing: true,
-              isImageMirror: true
-            });
+        // 1. Handle Rotation (Sensor's Landscape -> View's Portrait)
+        const p1x_rotated = startPoint.y * containerWidth;
+        let p1y_rotated = startPoint.x * containerHeight; // Note: 'let' now
+        
+        const p2x_rotated = endPoint.y * containerWidth;
+        let p2y_rotated = endPoint.x * containerHeight; // Note: 'let' now
 
-            if (photo?.base64) {
-              await processFrame(photo.base64);
-            }
-          } catch (error) {
-            console.error('Error capturing frame:', error);
-          }
-        }
-      }, 500); // Every 1 second
-    }
+        // 2. Handle Mirroring (Front Camera)
+        const p1x_mirrored = containerWidth - p1x_rotated;
+        const p2x_mirrored = containerWidth - p2x_rotated;
+        
+        // 3. ✅ Handle Vertical Flip (Final Step)
+        // const p1y_final = containerHeight - p1y_rotated;
+        // const p2y_final = containerHeight - p2y_rotated;
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [cameraPermissionWasGranted]);
-
-  const processFrame = async (frameData: string) => {
-    try {
-      PoseLandmarks.processFrame(frameData);
-
-      console.log('Frame processed:');
-    } catch (error) {
-      console.error('Error processing frame:', error);
-    }
-  };
-
-  // Pose connections (skeleton bones)
-  const POSE_CONNECTIONS = [
-    [0, 1], [1, 2], [2, 3], [3, 7], // Nose to left eye/ear
-    [0, 4], [4, 5], [5, 6], [6, 8], // Nose to right eye/ear
-    [9, 10], // Mouth
-    [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], // Left arm
-    [12, 14], [14, 16], [16, 18], [16, 20], [16, 22], // Right arm
-    [11, 23], [12, 24], // Shoulders to hips
-    [23, 24], // Hips
-    [23, 25], [25, 27], [27, 29], [29, 31], // Left leg
-    [24, 26], [26, 28], [28, 30], [30, 32], // Right leg
-  ];
-
-  const renderSkeleton = () => {
-    if (!currentPose) return null;
-
-    const keypoints = currentPose.map((point: any) => ({
-      x: point.x * screenWidth,
-      y: point.y * screenHeight,
-    }));
-
-    return (
-      <Svg style={StyleSheet.absoluteFill}>
-        {/* Draw connections */}
-        {POSE_CONNECTIONS.map(([start, end]) => {
-          const startPoint = keypoints[start];
-          const endPoint = keypoints[end];
-          if (!startPoint || !endPoint) return null;
-
-          return (
-            <Line
-              key={`${start}-${end}`}
-              x1={startPoint.x}
-              y1={startPoint.y}
-              x2={endPoint.x}
-              y2={endPoint.y}
-              stroke="red"
-              strokeWidth="3"
-            />
-          );
-        })}
-
-        {/* Draw keypoints */}
-        {keypoints.map((point: any, index: number) => (
-          <Circle
-            key={index}
-            cx={point.x}
-            cy={point.y}
-            r="5"
-            fill="blue"
+        lines.push(
+          <Line
+            key={`${start}-${end}`}
+            p1={{ x: p1x_mirrored, y: p1y_rotated }}
+            p2={{ x: p2x_mirrored, y: p2y_rotated }}
+            color="red"
+            strokeWidth={3}
           />
-        ))}
-      </Svg>
-    );
-  };
+        );
+      }
+    });
 
-  if (!cameraPermissionWasGranted) {
-    return (
-      <Text>
-        {"Camera permission wasn't granted"}
-      </Text>
-    );
-  }
+    return lines;
+  };
 
   return (
-    <View style={StyleSheet.absoluteFill}>
-      <CameraView
-        ref={cameraRef}
+    <View style={StyleSheet.absoluteFill} onLayout={onLayout}>
+      <Camera
         style={StyleSheet.absoluteFill}
-        facing="front"
-        animateShutter={false}
+        device={device}
+        isActive={true}
+        frameProcessor={poseDetectionProcessor}
+        // 3. Set resizeMode to "contain" to solve the "zoom" issue.
+        resizeMode="contain" 
+        {...cameraComponentProps}
       />
-      {renderSkeleton()}
+      {containerSize && (
+        <Canvas style={StyleSheet.absoluteFill}>
+          {drawSkeleton()}
+        </Canvas>
+      )}
     </View>
   );
 }
