@@ -356,12 +356,12 @@ export default function ManagePatientsScreen() {
                 >
                   <ThemedText className="text-white text-center text-sm">Assign Physio</ThemedText>
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   className="bg-purple-500 px-3 py-2 rounded flex-1"
                   onPress={() => openModal('prescribe', patient)}
                 >
                   <ThemedText className="text-white text-center text-sm">Prescribe Exercise</ThemedText>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </ThemedView>
             </ThemedView>
           ))

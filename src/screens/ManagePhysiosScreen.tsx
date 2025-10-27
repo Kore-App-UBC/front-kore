@@ -73,8 +73,9 @@ export default function ManagePhysiosScreen() {
 
     try {
       setLoading(true);
-      const newPhysio = await apiService.createPhysio(createForm);
-      setPhysios(prev => [...prev, newPhysio]);
+      await apiService.createPhysio(createForm);
+      
+      fetchPhysios();
       Alert.alert('Success', 'Physiotherapist created successfully');
       closeModal();
     } catch (error) {

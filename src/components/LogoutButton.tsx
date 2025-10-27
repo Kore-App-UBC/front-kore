@@ -1,34 +1,13 @@
 import React from 'react';
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import { ThemedText } from './themed-text';
 
-interface LogoutButtonProps {
-  onLogout?: () => void;
-}
-
-export default function LogoutButton({ onLogout }: LogoutButtonProps) {
+export default function LogoutButton() {
   const { signOut, loading } = useAuth();
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            await signOut();
-            onLogout?.();
-          },
-        },
-      ]
-    );
+    signOut();
   };
 
   return (

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { AssignPhysioData, AuthResponse, CreatePatientData, CreatePhysioData, Exercise, FeedbackData, Metrics, Patient, Physio, PhysioDropdownOption, PrescribeExerciseData, Submission, SubmissionDetail, SubmissionQueueItem, UpdatePatientData, UpdatePhysioData, User } from '../types';
+import { AssignPhysioData, AuthResponse, AvailableExercise, CreateExerciseData, CreatePatientData, CreatePhysioData, Exercise, FeedbackData, Metrics, Patient, Physio, PhysioDropdownOption, PrescribedExercise, PrescribeExerciseData, PrescribeExerciseResponse, RemovePrescriptionResponse, Submission, SubmissionDetail, SubmissionQueueItem, UpdateExerciseData, UpdatePatientData, UpdatePhysioData, User } from '../types';
 import { storageService } from '../utils/storage';
 
 /**
@@ -10,7 +10,7 @@ import { storageService } from '../utils/storage';
  */
 
 // Configuration
-const API_BASE_URL = 'http://172.17.1.174:3000'; // Replace with your actual API URL
+const API_BASE_URL = 'http://192.168.15.12:3000'; // Replace with your actual API URL
 const API_TIMEOUT = 10000; // 10 seconds
 
 // API Error types
@@ -231,8 +231,84 @@ class ApiService {
   }
 
   // ===== PATIENT API METHODS =====
-  async getPatientExercises(): Promise<Exercise[]> {
-    return this.get<Exercise[]>('/patient/exercises');
+  async getPatientExercises(): Promise<Array<{
+    id: string;                    // Prescription ID (CUID)
+    patientId: string;             // Patient profile ID
+    exerciseId: string;            // Exercise ID
+    prescribedAt: string;          // ISO date string
+    exercise: {                    // Full exercise object
+      id: string;                  // Exercise ID
+      name: string;                // Exercise name
+      description: string;         // Exercise description
+      instructionsUrl: string;     // URL to exercise instructions
+      classificationData: {        // Pose classification configuration
+        landmarks: string[];       // Required landmark names
+        thresholds: {
+          up: number;              // Upper threshold angle
+          down: number;            // Lower threshold angle
+        };
+        evaluationType: "high_to_low" | "low_to_high";
+      };
+      animationData: {             // 3D animation configuration
+        keyframes: Array<{         // Animation keyframes
+          progress: number;        // Animation progress (0.0 to 1.0)
+          transformations: Array<{
+            axis?: "x" | "y" | "z"; // Rotation axis (optional)
+            type: "relative_translate" | "rotate_around_joint";
+            angle?: number;         // Rotation angle in degrees (optional)
+            joint: string;          // Joint name to transform
+            distance?: number;      // Distance from pivot (optional)
+            pivotJoint?: string;    // Pivot joint for rotation (optional)
+            offset?: [number, number, number]; // Translation offset (optional)
+            relativeTo?: string;    // Reference joint for relative positioning (optional)
+          }>;
+        }>;
+        basePoints: Record<string, [number, number, number]>; // 3D joint positions
+        animationType?: string;     // Animation pattern (e.g., "oscillating")
+      };
+      createdAt: string;           // ISO date string
+      updatedAt: string;           // ISO date string
+    };
+  }>> {
+    return this.get<Array<{
+      id: string;
+      patientId: string;
+      exerciseId: string;
+      prescribedAt: string;
+      exercise: {
+        id: string;
+        name: string;
+        description: string;
+        instructionsUrl: string;
+        classificationData: {
+          landmarks: string[];
+          thresholds: {
+            up: number;
+            down: number;
+          };
+          evaluationType: "high_to_low" | "low_to_high";
+        };
+        animationData: {
+          keyframes: Array<{
+            progress: number;
+            transformations: Array<{
+              axis?: "x" | "y" | "z";
+              type: "relative_translate" | "rotate_around_joint";
+              angle?: number;
+              joint: string;
+              distance?: number;
+              pivotJoint?: string;
+              offset?: [number, number, number];
+              relativeTo?: string;
+            }>;
+          }>;
+          basePoints: Record<string, [number, number, number]>;
+          animationType?: string;
+        };
+        createdAt: string;
+        updatedAt: string;
+      };
+    }>>('/patient/exercises');
   }
 
   async getPatientSubmissionHistory(): Promise<Submission[]> {
@@ -258,6 +334,22 @@ class ApiService {
 
   async submitFeedback(submissionId: string, feedback: FeedbackData): Promise<void> {
     return this.post<void>(`/physio/submissions/${submissionId}/feedback`, feedback);
+  }
+
+  async prescribeExercise(patientId: string, exerciseId: string): Promise<PrescribeExerciseResponse> {
+    return this.post<PrescribeExerciseResponse>(`/physio/patients/${patientId}/prescribe`, { exerciseId });
+  }
+
+  async getPrescribedExercises(patientId: string): Promise<PrescribedExercise[]> {
+    return this.get<PrescribedExercise[]>(`/physio/patients/${patientId}/prescriptions`);
+  }
+
+  async removePrescribedExercise(patientId: string, exerciseId: string): Promise<RemovePrescriptionResponse> {
+    return this.delete<RemovePrescriptionResponse>(`/physio/patients/${patientId}/prescriptions/${exerciseId}`);
+  }
+
+  async getAvailableExercises(patientId: string): Promise<AvailableExercise[]> {
+    return this.get<AvailableExercise[]>(`/physio/patients/${patientId}/available-exercises`);
   }
 
   // ===== MANAGER API METHODS =====
@@ -299,6 +391,22 @@ class ApiService {
 
   async updatePhysio(physioId: string, updateData: UpdatePhysioData): Promise<void> {
     return this.put<void>(`/manager/physiotherapists/${physioId}`, updateData);
+  }
+
+  async getExercises(): Promise<Exercise[]> {
+    return this.get<Exercise[]>('/manager/exercises');
+  }
+
+  async createExercise(exerciseData: CreateExerciseData): Promise<{ message: string; exercise: Exercise }> {
+    return this.post<{ message: string; exercise: Exercise }>('/manager/exercises', exerciseData);
+  }
+
+  async updateExercise(exerciseId: string, updateData: UpdateExerciseData): Promise<{ message: string }> {
+    return this.put<{ message: string }>(`/manager/exercises/${exerciseId}`, updateData);
+  }
+
+  async deleteExercise(exerciseId: string): Promise<{ message: string }> {
+    return this.delete<{ message: string }>(`/manager/exercises/${exerciseId}`);
   }
 
   // ===== UTILITY METHODS =====

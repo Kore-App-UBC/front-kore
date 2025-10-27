@@ -14,14 +14,70 @@ export interface User {
 }
 
 export interface Exercise {
-  id: string;
+  id: string; // CUID format
   name: string;
   description: string;
-  duration: number;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  category: string;
-  instructions: string[];
-  mediaUrl?: string;
+  instructionsUrl: string;
+  classificationData: ClassificationData | null;
+  animationData: AnimationData | null;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+}
+
+export interface ClassificationData {
+  thresholds: {
+    up: number;
+    down: number;
+  };
+  landmarks: string[];
+  evaluationType: "high_to_low" | "low_to_high" | "custom";
+}
+
+export type Transformation = (
+  | {
+      type: 'relative_translate';
+      joint: string;
+      offset: [number, number, number];
+      relativeTo: string;
+    }
+  | {
+      type: 'rotate_around_joint';
+      joint: string;
+      pivotJoint: string;
+      axis: 'x' | 'y' | 'z';
+      angle: number; // in degrees
+      distance: number;
+    }
+);
+
+export interface Keyframe {
+  progress: number; // 0 to 1
+  transformations: Transformation[];
+}
+
+export interface AnimationData {
+  basePoints: Record<string, [number, number, number]>;
+  keyframes: Keyframe[]; // Array of keyframe objects
+  animationType?: "oscillating" | "loop";
+  classificationData?: {
+    landmarks: string[];
+  };
+}
+
+export interface CreateExerciseData {
+  name: string;
+  description: string;
+  instructionsUrl: string;
+  classificationData?: ClassificationData;
+  animationData?: AnimationData;
+}
+
+export interface UpdateExerciseData {
+  name?: string;
+  description?: string;
+  instructionsUrl?: string;
+  classificationData?: ClassificationData | null;
+  animationData?: AnimationData | null;
 }
 
 export interface Submission {
@@ -89,9 +145,10 @@ export type RootStackParamList = {
 };
 
 export type PatientTabParamList = {
-  Exercises: undefined;
-  RealTimeSession: undefined;
-  History: undefined;
+  exercises: undefined;
+  realTimeSession: undefined;
+  history: undefined;
+  exerciseDetail: { exercise: PrescribedExercise };
 };
 
 export type PhysioTabParamList = {
@@ -215,4 +272,34 @@ export interface Physio {
 export interface PhysioDropdownOption {
   label: string;
   value: string;
+}
+
+// Prescription-related types
+export interface PrescribedExercise {
+  id: string;           // Prescription ID (CUID format)
+  patientId: string;    // Patient profile ID
+  exerciseId: string;   // Exercise ID
+  prescribedAt: string; // ISO date string
+  exercise: Exercise;   // Full exercise object
+  patient?: {           // Only included in prescribe response
+    user: {
+      name: string;     // Patient's name
+    };
+  };
+}
+
+export interface PatientExercisesResponse extends Array<PrescribedExercise> {}
+
+export interface PrescribeExerciseResponse {
+  message: string;
+  prescription: PrescribedExercise;
+}
+
+export interface RemovePrescriptionResponse {
+  message: string;
+}
+
+// Available exercise with prescription status
+export interface AvailableExercise extends Exercise {
+  isPrescribed: boolean;
 }
