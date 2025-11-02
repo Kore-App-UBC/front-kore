@@ -93,7 +93,7 @@ function DonutChart({ active, completed, size = 140, strokeWidth = 18 }: { activ
         {total}
       </SvgText>
       <SvgText x={cx} y={cy + 14} fontSize={12} fill="#A0ABC6" textAnchor="middle">
-        Completed: {completed}
+        Completado: {completed}
       </SvgText>
     </Svg>
   );
@@ -121,8 +121,8 @@ export default function MetricsScreen() {
       const data = await apiService.getMetrics();
       setMetrics(data);
     } catch (err) {
-      setError('Failed to load metrics');
-      showAlert('Error', 'Failed to load metrics');
+      setError('Falha ao carregar métricas');
+      showAlert('Erro', 'Falha ao carregar métricas');
     } finally {
       setLoading(false);
     }
@@ -133,7 +133,7 @@ export default function MetricsScreen() {
       <>
         <ThemedView variant="transparent" className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#7F5AF0" />
-          <ThemedText className="mt-4">Loading metrics...</ThemedText>
+            <ThemedText className="mt-4">Carregando métricas...</ThemedText>
         </ThemedView>
         <CustomAlert
           visible={alertState.visible}
@@ -155,7 +155,7 @@ export default function MetricsScreen() {
             className="text-accent underline"
             onPress={fetchMetrics}
           >
-            Try Again
+              Tentar novamente
           </ThemedText>
         </ThemedView>
         <CustomAlert
@@ -173,38 +173,38 @@ export default function MetricsScreen() {
     <>
       <ScrollView className="flex-1 pb-32">
         <ThemedView variant="transparent" className="p-6">
-        <ThemedText type="title" className="mb-6">Manager Metrics</ThemedText>
+        <ThemedText type="title" className="mb-6">Métricas</ThemedText>
 
         {metrics && (
           <ThemedView className="gap-4">
             <ThemedView variant="surface" className="p-5 rounded-3xl">
-              <ThemedText type="subtitle" className="mb-2">Total Patients</ThemedText>
+              <ThemedText type="subtitle" className="mb-2">Total de pacientes</ThemedText>
               <ThemedText className="text-2xl font-bold text-accent">{metrics.totalPatients}</ThemedText>
             </ThemedView>
 
             <ThemedView variant="surface" className="p-5 rounded-3xl">
-              <ThemedText type="subtitle" className="mb-2">Total Physiotherapists</ThemedText>
+              <ThemedText type="subtitle" className="mb-2">Total de fisioterapeutas</ThemedText>
               <ThemedText className="text-2xl font-bold text-success">{metrics.totalPhysiotherapists ?? metrics.totalPhysios ?? 0}</ThemedText>
             </ThemedView>
 
             <ThemedView variant="surface" className="p-5 rounded-3xl">
-              <ThemedText type="subtitle" className="mb-2">Total Exercises</ThemedText>
+              <ThemedText type="subtitle" className="mb-2">Total de exercícios</ThemedText>
               <ThemedText className="text-2xl font-bold text-accent-soft">{metrics.totalExercises}</ThemedText>
             </ThemedView>
 
             <ThemedView variant="surface" className="p-5 rounded-3xl">
-              <ThemedText type="subtitle" className="mb-2">Active Submissions (Not Reviewed)</ThemedText>
+              <ThemedText type="subtitle" className="mb-2">Envios ativos (não revisadas)</ThemedText>
               <ThemedText className="text-2xl font-bold text-warning">{metrics.activeSubmissionsNotReviewed ?? metrics.activeSessions ?? 0}</ThemedText>
             </ThemedView>
 
             <ThemedView variant="surface" className="p-5 rounded-3xl">
-              <ThemedText type="subtitle" className="mb-2">Completed Sessions (Reviewed)</ThemedText>
+              <ThemedText type="subtitle" className="mb-2">Sessões concluídas (revisadas)</ThemedText>
               <ThemedText className="text-2xl font-bold text-success">{metrics.completeSessionsReviewed ?? metrics.completedSessions ?? 0}</ThemedText>
             </ThemedView>
 
             {/* Exercises by prescription (with small bar chart) */}
             <ThemedView variant="surfaceStrong" className="p-5 rounded-3xl">
-              <ThemedText type="subtitle" className="mb-2">Exercises by Prescription</ThemedText>
+              <ThemedText type="subtitle" className="mb-2">Exercícios por prescrição</ThemedText>
               {metrics.exercisesByPrescription && metrics.exercisesByPrescription.length > 0 ? (
                 <ThemedView className="gap-2 mt-2 rounded-lg" variant='surfaceStrong'>
                   <View className="items-center">
@@ -226,13 +226,13 @@ export default function MetricsScreen() {
                   ))}
                 </ThemedView>
               ) : (
-                <ThemedText className="text-sm text-muted mt-2">No prescriptions found for your clinic.</ThemedText>
+                <ThemedText className="text-sm text-muted mt-2">Nenhuma prescrição encontrada para sua clínica.</ThemedText>
               )}
             </ThemedView>
 
             {/* Submissions vs Completed chart */}
             <ThemedView variant="surface" className="p-5 rounded-3xl">
-              <ThemedText type="subtitle" className="mb-2">Submissions: Active vs Completed</ThemedText>
+              <ThemedText type="subtitle" className="mb-2">Envios: Ativos vs Concluídos</ThemedText>
               <View className="items-center mt-2">
                 <DonutChart
                   active={metrics.activeSubmissionsNotReviewed ?? metrics.activeSessions ?? 0}
@@ -243,11 +243,11 @@ export default function MetricsScreen() {
               <ThemedView className="flex-row justify-around mt-4 p-3 rounded-lg" variant='surfaceStrong'>
                 <ThemedView className="items-center border-none" variant='surfaceStrong'>
                   <View className="w-4 h-4 bg-warning rounded-full" />
-                  <ThemedText className="text-sm mt-1">Active</ThemedText>
+                  <ThemedText className="text-sm mt-1">Ativos</ThemedText>
                 </ThemedView>
                 <ThemedView className="items-center border-none" variant='surfaceStrong'>
                   <View className="w-4 h-4 bg-success rounded-full" />
-                  <ThemedText className="text-sm mt-1">Completed</ThemedText>
+                  <ThemedText className="text-sm mt-1">Concluídos</ThemedText>
                 </ThemedView>
               </ThemedView>
             </ThemedView>

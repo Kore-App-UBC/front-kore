@@ -87,18 +87,18 @@ export default function LoginScreen() {
      setPasswordError('');
 
      if (!email) {
-       setEmailError('Email is required');
+       setEmailError('E-mail é obrigatório');
        isValid = false;
      } else if (!validateEmail(email)) {
-       setEmailError('Please enter a valid email address');
+       setEmailError('Por favor, insira um endereço de e-mail válido');
        isValid = false;
      }
 
      if (!password) {
-       setPasswordError('Password is required');
+       setPasswordError('Senha é obrigatória');
        isValid = false;
      } else if (!validatePassword(password)) {
-       setPasswordError('Password must be at least 6 characters long');
+       setPasswordError('A senha deve ter pelo menos 6 caracteres');
        isValid = false;
      }
 
@@ -110,15 +110,15 @@ export default function LoginScreen() {
       if (!result.success) {
         Toast.show({
           type: 'error',
-          text1: 'Login Failed',
-          text2: result.error || 'An error occurred during login. Please try again.',
+          text1: 'Falha no login',
+          text2: result.error || 'Ocorreu um erro durante o login. Por favor, tente novamente.',
         });
       }
      } catch {
       Toast.show({
          type: 'error',
-         text1: 'Login Failed',
-         text2: 'An error occurred during login. Please try again.',
+         text1: 'Falha no login',
+         text2: 'Ocorreu um erro durante o login. Por favor, tente novamente.',
        });
      }
    };
@@ -169,7 +169,7 @@ export default function LoginScreen() {
         >
           <Image className='mx-auto !size-24' source={logoSource} resizeMode="contain" />
           <ThemedText type="title" className="text-center mb-1">Kore</ThemedText>
-          <ThemedText className="text-center text-muted">Personalized rehab, ready when you are.</ThemedText>
+          <ThemedText className="text-center text-muted">Reabilitação personalizada, pronta quando você precisar.</ThemedText>
         </Animated.View>
 
         <AnimatedThemedView
@@ -178,13 +178,13 @@ export default function LoginScreen() {
           entering={FadeInDown.delay(110).duration(450).springify().damping(14)}
           // layout={LinearTransition.springify().damping(14)}
         >
-          <ThemedText type="title" className="text-center mb-8">Welcome Back</ThemedText>
+          <ThemedText type="title" className="text-center mb-8">Bem-vindo de volta</ThemedText>
 
           <View className="mb-6">
             <View className="mb-4">
               <TextInput
                 className={`rounded-3xl px-5 py-4 text-base text-white bg-surface border ${emailError ? 'border-danger/80' : 'border-outline'}`}
-                placeholder="Email"
+                placeholder="E-mail"
                 placeholderTextColor="#7A86A8"
                 value={email}
                 onChangeText={(text) => {
@@ -209,7 +209,7 @@ export default function LoginScreen() {
             <View className="mb-4">
               <TextInput
                 className={`rounded-3xl px-5 py-4 text-base text-white bg-surface border ${passwordError ? 'border-danger/80' : 'border-outline'}`}
-                placeholder="Password"
+                placeholder="Senha"
                 placeholderTextColor="#7A86A8"
                 value={password}
                 onChangeText={(text) => {
@@ -252,10 +252,10 @@ export default function LoginScreen() {
               end={{ x: 1, y: 1 }}
               className="py-4 px-6 items-center"
             >
-              {loading ? (
+                {loading ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <ThemedText className="text-white text-lg font-semibold">Sign In</ThemedText>
+                <ThemedText className="text-white text-lg font-semibold">Entrar</ThemedText>
               )}
             </LinearGradient>
           </TouchableOpacity>

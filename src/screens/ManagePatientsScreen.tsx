@@ -49,7 +49,7 @@ export default function ManagePatientsScreen() {
       const fetchedPatients = await apiService.getPatients();
       setPatients(fetchedPatients);
     } catch (error) {
-      showAlert('Error', 'Failed to fetch patients');
+      showAlert('Erro', 'Falha ao buscar pacientes');
       console.error('Error fetching patients:', error);
     } finally {
       setFetchLoading(false);
@@ -61,7 +61,7 @@ export default function ManagePatientsScreen() {
       const options = await apiService.getPhysioDropdown();
       setPhysioOptions(options);
     } catch (error) {
-      showAlert('Error', 'Failed to fetch physiotherapists');
+      showAlert('Erro', 'Falha ao buscar fisioterapeutas');
       console.error('Error fetching physio options:', error);
     }
   }, []);
@@ -103,7 +103,7 @@ export default function ManagePatientsScreen() {
 
   const handleCreatePatient = async () => {
     if (!createForm.name || !createForm.email) {
-      showAlert('Error', 'Name and email are required');
+      showAlert('Erro', 'Nome e e-mail são obrigatórios');
       return;
     }
 
@@ -112,10 +112,10 @@ export default function ManagePatientsScreen() {
       await apiService.createPatient(createForm);
       fetchPatients();
 
-      showAlert('Success', 'Patient created successfully');
+      showAlert('Sucesso', 'Paciente criado com sucesso');
       closeModal();
     } catch (error) {
-      showAlert('Error', 'Failed to create patient');
+      showAlert('Erro', 'Falha ao criar paciente');
     } finally {
       setLoading(false);
     }
@@ -123,18 +123,18 @@ export default function ManagePatientsScreen() {
 
   const handleAssignPhysio = async () => {
     if (!selectedPatient || !assignForm.physiotherapistId) {
-      showAlert('Error', 'Please select a physio');
+      showAlert('Erro', 'Por favor, selecione um fisioterapeuta');
       return;
     }
 
     try {
       setLoading(true);
       await apiService.assignPhysioToPatient(selectedPatient.id, assignForm);
-      showAlert('Success', 'Physio assigned successfully');
+      showAlert('Sucesso', 'Fisioterapeuta atribuído com sucesso');
       fetchPatients();
       closeModal();
     } catch (error) {
-      showAlert('Error', 'Failed to assign physio');
+      showAlert('Erro', 'Falha ao atribuir fisioterapeuta');
     } finally {
       setLoading(false);
     }
@@ -142,17 +142,17 @@ export default function ManagePatientsScreen() {
 
   const handlePrescribeExercise = async () => {
     if (!selectedPatient || !prescribeForm.exerciseId) {
-      showAlert('Error', 'Please select an exercise');
+      showAlert('Erro', 'Por favor, selecione um exercício');
       return;
     }
 
     try {
       setLoading(true);
       await apiService.prescribeExerciseToPatient(selectedPatient.id, prescribeForm);
-      showAlert('Success', 'Exercise prescribed successfully');
+      showAlert('Sucesso', 'Exercício prescrito com sucesso');
       closeModal();
     } catch (error) {
-      showAlert('Error', 'Failed to prescribe exercise');
+      showAlert('Erro', 'Falha ao prescrever exercício');
     } finally {
       setLoading(false);
     }
@@ -160,7 +160,7 @@ export default function ManagePatientsScreen() {
 
   const handleEditPatient = async () => {
     if (!selectedPatient) {
-      showAlert('Error', 'No patient selected');
+      showAlert('Erro', 'Nenhum paciente selecionado');
       return;
     }
 
@@ -174,10 +174,10 @@ export default function ManagePatientsScreen() {
       await apiService.updatePatient(selectedPatient.userId, editForm);
       // Update the patient in the local state
       fetchPatients();
-      showAlert('Success', 'Patient updated successfully');
+      showAlert('Sucesso', 'Paciente atualizado com sucesso');
       closeModal();
     } catch (error) {
-      showAlert('Error', 'Failed to update patient');
+      showAlert('Erro', 'Falha ao atualizar paciente');
     } finally {
       setLoading(false);
     }
@@ -188,24 +188,24 @@ export default function ManagePatientsScreen() {
       <ThemedView className="flex-1 justify-center items-center bg-black bg-opacity-50" variant='surfaceStrong'>
         <ThemedView variant="background" className="p-6 rounded-3xl w-11/12 max-w-md bg-black">
           <ThemedText type="subtitle" className="mb-4">
-            {modalType === 'create' && 'Create New Patient'}
-            {modalType === 'assign' && 'Assign Physio to Patient'}
-            {modalType === 'prescribe' && 'Prescribe Exercise'}
-            {modalType === 'edit' && 'Edit Patient'}
+            {modalType === 'create' && 'Criar novo paciente'}
+            {modalType === 'assign' && 'Atribuir fisioterapeuta ao paciente'}
+            {modalType === 'prescribe' && 'Prescrever exercício'}
+            {modalType === 'edit' && 'Editar paciente'}
           </ThemedText>
 
           {modalType === 'create' && (
             <>
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Name"
+                placeholder="Nome"
                 placeholderTextColor="#7A86A8"
                 value={createForm.name}
                 onChangeText={(text) => setCreateForm(prev => ({ ...prev, name: text }))}
               />
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Email"
+                placeholder="E-mail"
                 placeholderTextColor="#7A86A8"
                 value={createForm.email}
                 onChangeText={(text) => setCreateForm(prev => ({ ...prev, email: text }))}
@@ -213,7 +213,7 @@ export default function ManagePatientsScreen() {
               />
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Password"
+                placeholder="Senha"
                 placeholderTextColor="#7A86A8"
                 value={createForm.password}
                 onChangeText={(text) => setCreateForm(prev => ({ ...prev, password: text }))}
@@ -221,7 +221,7 @@ export default function ManagePatientsScreen() {
               />
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Phone (optional)"
+                placeholder="Telefone (opcional)"
                 placeholderTextColor="#7A86A8"
                 value={createForm.phone}
                 onChangeText={(text) => setCreateForm(prev => ({ ...prev, phone: text }))}
@@ -229,7 +229,7 @@ export default function ManagePatientsScreen() {
               />
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-4 text-white bg-surface"
-                placeholder="Date of Birth (YYYY-MM-DD)"
+                placeholder="Data de nascimento (AAAA-MM-DD)"
                 placeholderTextColor="#7A86A8"
                 value={createForm.dateOfBirth}
                 onChangeText={(text) => setCreateForm(prev => ({ ...prev, dateOfBirth: text }))}
@@ -242,7 +242,7 @@ export default function ManagePatientsScreen() {
               options={physioOptions}
               selectedValue={assignForm.physiotherapistId}
               onValueChange={handlePhysioSelect}
-              placeholder="Select a Physiotherapist"
+              placeholder="Selecione um fisioterapeuta"
               className="mb-4"
             />
           )}
@@ -251,14 +251,14 @@ export default function ManagePatientsScreen() {
             <>
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Exercise ID"
+                placeholder="ID do exercício"
                 placeholderTextColor="#7A86A8"
                 value={prescribeForm.exerciseId}
                 onChangeText={(text) => setPrescribeForm(prev => ({ ...prev, exerciseId: text }))}
               />
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-4 text-white bg-surface"
-                placeholder="Notes (optional)"
+                placeholder="Notas (opcional)"
                 placeholderTextColor="#7A86A8"
                 value={prescribeForm.notes}
                 onChangeText={(text) => setPrescribeForm(prev => ({ ...prev, notes: text }))}
@@ -271,14 +271,14 @@ export default function ManagePatientsScreen() {
             <>
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Name"
+                placeholder="Nome"
                 placeholderTextColor="#7A86A8"
                 value={editForm.name}
                 onChangeText={(text) => setEditForm(prev => ({ ...prev, name: text }))}
               />
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Email"
+                placeholder="E-mail"
                 placeholderTextColor="#7A86A8"
                 value={editForm.email}
                 onChangeText={(text) => setEditForm(prev => ({ ...prev, email: text }))}
@@ -286,7 +286,7 @@ export default function ManagePatientsScreen() {
               />
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-4 text-white bg-surface"
-                placeholder="New Password (leave empty to keep current)"
+                placeholder="Nova senha (deixe vazio para manter a atual)"
                 placeholderTextColor="#7A86A8"
                 value={editForm.password}
                 onChangeText={(text) => setEditForm(prev => ({ ...prev, password: text }))}
@@ -300,7 +300,7 @@ export default function ManagePatientsScreen() {
               className="px-4 py-3 rounded-2xl border border-outline bg-surface"
               onPress={closeModal}
             >
-              <ThemedText>Cancel</ThemedText>
+              <ThemedText>Cancelar</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity
               className="bg-accent px-4 py-3 rounded-2xl"
@@ -312,14 +312,14 @@ export default function ManagePatientsScreen() {
               }
               disabled={loading}
             >
-              {loading ? (
+                {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
                 <ThemedText className="text-white">
-                  {modalType === 'create' && 'Create'}
-                  {modalType === 'assign' && 'Assign'}
-                  {modalType === 'prescribe' && 'Prescribe'}
-                  {modalType === 'edit' && 'Update'}
+                  {modalType === 'create' && 'Criar'}
+                  {modalType === 'assign' && 'Atribuir'}
+                  {modalType === 'prescribe' && 'Prescrever'}
+                  {modalType === 'edit' && 'Atualizar'}
                 </ThemedText>
               )}
             </TouchableOpacity>
@@ -332,21 +332,21 @@ export default function ManagePatientsScreen() {
   return (
     <ScrollView className="flex-1 pb-32">
       <ThemedView variant="transparent" className="p-6">
-        <ThemedText type="title" className="mb-6">Manage Patients</ThemedText>
+  <ThemedText type="title" className="mb-6">Gerenciar pacientes</ThemedText>
 
         <TouchableOpacity
           className="bg-accent p-4 rounded-3xl mb-6"
           onPress={() => openModal('create')}
         >
-          <ThemedText className="text-white text-center font-bold">Create New Patient</ThemedText>
+          <ThemedText className="text-white text-center font-bold">Criar novo paciente</ThemedText>
         </TouchableOpacity>
 
-        <ThemedText type="subtitle" className="mb-4">Patient Actions</ThemedText>
+  <ThemedText type="subtitle" className="mb-4">Ações do paciente</ThemedText>
 
         {fetchLoading ? (
           <ActivityIndicator size="large" color="#7F5AF0" />
         ) : patients.length === 0 ? (
-          <ThemedText className="text-center text-muted">No patients found</ThemedText>
+          <ThemedText className="text-center text-muted">Nenhum paciente encontrado</ThemedText>
         ) : (
           patients.map((patient) => (
             <ThemedView key={patient.id} variant="surface" className="p-5 rounded-3xl mb-4">
@@ -355,7 +355,7 @@ export default function ManagePatientsScreen() {
               {
                 patient.physiotherapist?.user?.name 
                 && 
-                <ThemedText className="mb-3 italic text-sm text-muted">Responsible Physiotherapist: {patient.physiotherapist?.user?.name}</ThemedText>
+                <ThemedText className="mb-3 italic text-sm text-muted">Fisioterapeuta responsável: {patient.physiotherapist?.user?.name}</ThemedText>
               }
 
               <ThemedView className="flex-row space-x-2 mb-2">
@@ -363,7 +363,7 @@ export default function ManagePatientsScreen() {
                   className="bg-accent px-3 py-3 rounded-2xl flex-1"
                   onPress={() => openModal('edit', patient)}
                 >
-                  <ThemedText className="text-white text-center text-sm">Edit</ThemedText>
+                  <ThemedText className="text-white text-center text-sm">Editar</ThemedText>
                 </TouchableOpacity>
               </ThemedView>
               <ThemedView className="flex-row space-x-2">
@@ -371,7 +371,7 @@ export default function ManagePatientsScreen() {
                   className="bg-success px-3 py-3 rounded-2xl flex-1"
                   onPress={() => openModal('assign', patient)}
                 >
-                  <ThemedText className="text-white text-center text-sm">Assign Physio</ThemedText>
+                  <ThemedText className="text-white text-center text-sm">Atribuir fisioterapeuta</ThemedText>
                 </TouchableOpacity>
                 {/* <TouchableOpacity
                   className="bg-purple-500 px-3 py-2 rounded flex-1"

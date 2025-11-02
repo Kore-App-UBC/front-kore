@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Redirect, Tabs } from 'expo-router';
-import React from 'react';
+import { router, Tabs } from 'expo-router';
+import React, { useEffect } from 'react';
 
 import LogoutButton from '../../src/components/LogoutButton';
 import { useFloatingTabOptions } from '../../src/components/useFloatingTabOptions';
@@ -9,9 +9,11 @@ import { useAuthStore } from '../../src/state/authStore';
 export default function PatientTabLayout() {
   const { isAuthenticated, user } = useAuthStore();
 
-  if (!isAuthenticated || user?.role !== 'PATIENT') {
-    return <Redirect href="/(auth)/login" />;
-  }
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'PATIENT') {
+      router.replace('/(auth)/login');
+    }
+  }, [isAuthenticated, user, router]);
 
   const headerRight = () => (
     <LogoutButton />
@@ -38,21 +40,21 @@ export default function PatientTabLayout() {
       <Tabs.Screen
         name="exercises"
         options={{
-          title: 'Exercises',
+          title: 'Exercícios',
           tabBarIcon: renderIcon('barbell', 'barbell-outline'),
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
-          title: 'History',
+          title: 'Histórico',
           tabBarIcon: renderIcon('time', 'time-outline'),
         }}
       />
       <Tabs.Screen
         name="exercise-detail"
         options={{
-          title: 'Exercise Detail',
+          title: 'Detalhe do Exercício',
           href: null, // Hide from tab bar
         }}
       />

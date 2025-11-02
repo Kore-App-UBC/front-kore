@@ -56,11 +56,11 @@ export default function RealTimeSessionScreen() {
 
   const startSession = () => {
     if (!hasPermission) {
-      showAlert('Camera Permission Required', 'Please enable camera permissions to use real-time sessions.');
+      showAlert('Permissão da câmera necessária', 'Por favor, ative as permissões da câmera para usar sessões em tempo real.');
       return;
     }
     if (!poseLandmarker) {
-      showAlert('Pose Detection Not Ready', 'Please wait for pose detection to initialize.');
+      showAlert('Detecção de pose não pronta', 'Aguarde a inicialização da detecção de pose.');
       return;
     }
     setIsRecording(true);
@@ -89,7 +89,7 @@ export default function RealTimeSessionScreen() {
       console.error('WebSocket initialization error:', error);
     }
 
-    showAlert('Session Started', 'Pose detection is now active.');
+    showAlert('Sessão iniciada', 'A detecção de pose está ativa.');
   };
 
   const processFrame = async (imageData: ImageData) => {
@@ -158,13 +158,13 @@ export default function RealTimeSessionScreen() {
     }
 
     // TODO: Stop MediaPipe pose detection and process results
-    showAlert('Session Ended', 'Session completed. Results will be processed.');
+    showAlert('Sessão encerrada', 'Sessão concluída. Os resultados serão processados.');
   };
 
   if (hasPermission === null) {
     return (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center">
-        <ThemedText>Requesting camera permission...</ThemedText>
+        <ThemedText>Solicitando permissão da câmera...</ThemedText>
       </ThemedView>
     );
   }
@@ -173,13 +173,13 @@ export default function RealTimeSessionScreen() {
     return (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center p-4">
         <ThemedText className="text-danger text-center mb-4">
-          Camera access is required for real-time exercise sessions.
+          O acesso à câmera é necessário para sessões de exercício em tempo real.
         </ThemedText>
         <TouchableOpacity
           onPress={() => Camera.requestCameraPermissionsAsync()}
           className="bg-accent px-5 py-3 rounded-2xl"
         >
-          <ThemedText className="text-white">Grant Permission</ThemedText>
+          <ThemedText className="text-white">Conceder permissão</ThemedText>
         </TouchableOpacity>
       </ThemedView>
     );
@@ -227,7 +227,7 @@ export default function RealTimeSessionScreen() {
             >
               <ThemedView className="flex-1 justify-center items-center">
                 <ThemedText className="text-white text-lg font-bold bg-surface-strong px-4 py-2 rounded-2xl">
-                  {isRecording ? 'Recording Session...' : 'Camera Ready'}
+                  {isRecording ? 'Gravando sessão...' : 'Câmera pronta'}
                 </ThemedText>
               </ThemedView>
               {isRecording && (
@@ -238,7 +238,7 @@ export default function RealTimeSessionScreen() {
                     </ThemedText>
                   )}
                   <ThemedText className="text-white text-xl font-bold bg-accent px-4 py-2 rounded-2xl self-start">
-                    Reps: {repCounts}
+                    Repetições: {repCounts}
                   </ThemedText>
                 </ThemedView>
               )}
@@ -252,29 +252,29 @@ export default function RealTimeSessionScreen() {
                 onPress={startSession}
                 className="bg-success px-6 py-3 rounded-2xl"
               >
-                <ThemedText className="text-white font-bold">Start Session</ThemedText>
+                <ThemedText className="text-white font-bold">Iniciar sessão</ThemedText>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
                 onPress={stopSession}
                 className="bg-danger px-6 py-3 rounded-2xl"
               >
-                <ThemedText className="text-white font-bold">Stop Session</ThemedText>
+                <ThemedText className="text-white font-bold">Encerrar sessão</ThemedText>
               </TouchableOpacity>
             )}
           </ThemedView>
 
           <ThemedView variant="surface" className="mt-4 p-5 rounded-3xl">
             <ThemedText type="subtitle" className="mb-2">Status:</ThemedText>
-            <ThemedText className="text-sm mb-1 text-muted">• Camera: {hasPermission ? 'Ready' : 'Not granted'}</ThemedText>
-            <ThemedText className="text-sm mb-1 text-muted">• Pose Detection: {poseLandmarker ? 'Initialized' : 'Loading...'}</ThemedText>
-            <ThemedText className="text-sm mb-1 text-muted">• Session: {isRecording ? 'Active' : 'Inactive'}</ThemedText>
-            <ThemedText className="text-sm mb-2 text-muted">• Landmarks: {poseLandmarks ? `${poseLandmarks[0]?.length || 0} detected` : 'None'}</ThemedText>
-            <ThemedText type="subtitle" className="mb-2">Instructions:</ThemedText>
-            <ThemedText className="text-sm mb-1 text-muted">• Position yourself in front of the camera</ThemedText>
-            <ThemedText className="text-sm mb-1 text-muted">• Ensure good lighting</ThemedText>
-            <ThemedText className="text-sm mb-1 text-muted">• Red dots will appear on detected pose landmarks</ThemedText>
-            <ThemedText className="text-sm text-muted">• Real-time feedback will be provided during sessions</ThemedText>
+            <ThemedText className="text-sm mb-1 text-muted">• Câmera: {hasPermission ? 'Pronta' : 'Não concedida'}</ThemedText>
+            <ThemedText className="text-sm mb-1 text-muted">• Detecção de pose: {poseLandmarker ? 'Inicializada' : 'Carregando...'}</ThemedText>
+            <ThemedText className="text-sm mb-1 text-muted">• Sessão: {isRecording ? 'Ativa' : 'Inativa'}</ThemedText>
+            <ThemedText className="text-sm mb-2 text-muted">• Pontos detectados: {poseLandmarks ? `${poseLandmarks[0]?.length || 0} detectados` : 'Nenhum'}</ThemedText>
+            <ThemedText type="subtitle" className="mb-2">Instruções:</ThemedText>
+            <ThemedText className="text-sm mb-1 text-muted">• Posicione-se em frente à câmera</ThemedText>
+            <ThemedText className="text-sm mb-1 text-muted">• Garanta boa iluminação</ThemedText>
+            <ThemedText className="text-sm mb-1 text-muted">• Pontos vermelhos aparecerão nos marcos de pose detectados</ThemedText>
+            <ThemedText className="text-sm text-muted">• Feedback em tempo real será fornecido durante as sessões</ThemedText>
           </ThemedView>
         </ThemedView>
       </ThemedView>

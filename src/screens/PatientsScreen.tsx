@@ -33,7 +33,7 @@ export default function PatientsScreen() {
       const data = await apiService.getAssignedPatients();
       setPatients(data);
     } catch (err) {
-      setError('Failed to load patients');
+      setError('Falha ao carregar pacientes');
       console.error(err);
     } finally {
       setLoading(false);
@@ -116,7 +116,7 @@ export default function PatientsScreen() {
     return (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#7F5AF0" />
-        <ThemedText className="text-lg text-muted mt-4">Loading patients...</ThemedText>
+        <ThemedText className="text-lg text-muted mt-4">Carregando pacientes...</ThemedText>
       </ThemedView>
     );
   }
@@ -129,7 +129,7 @@ export default function PatientsScreen() {
           className="px-5 py-3 bg-accent rounded-2xl"
           onPress={fetchPatients}
         >
-          <ThemedText className="text-white">Retry</ThemedText>
+          <ThemedText className="text-white">Tentar novamente</ThemedText>
         </TouchableOpacity>
       </ThemedView>
     );
@@ -141,14 +141,14 @@ export default function PatientsScreen() {
         <ScrollView className="flex-1 p-6 w-full flex flex-col items-center">
           <ThemedView variant="surfaceStrong" className="w-11/12 max-h-4/5 p-6 rounded-3xl">
             <ThemedText type="subtitle" className="mb-4">
-              Manage Prescriptions - {selectedPatient?.user.name}
+              Gerenciar prescrições - {selectedPatient?.user.name}
             </ThemedText>
 
             {prescriptionLoading ? (
               <ActivityIndicator size="large" color="#7F5AF0" />
             ) : (
               <>
-                <ThemedText className="mb-2 font-semibold">Available Exercises</ThemedText>
+                <ThemedText className="mb-2 font-semibold">Exercícios disponíveis</ThemedText>
                 {exercises.map((exercise) => (
                   <ThemedView key={exercise.id} variant="surfaceStrong" className="p-3 mb-3 rounded-2xl !bg-transparent">
                     <ThemedView className="flex-row justify-between items-start mb-2 !bg-transparent">
@@ -163,7 +163,7 @@ export default function PatientsScreen() {
                           }
                         >
                           <ThemedText className="text-white text-sm">
-                            {exercise.isPrescribed ? 'Remove' : 'Prescribe'}
+                            {exercise.isPrescribed ? 'Remover' : 'Prescrever'}
                           </ThemedText>
                         </TouchableOpacity>
                       </ThemedView>
@@ -178,9 +178,9 @@ export default function PatientsScreen() {
                   </ThemedView>
                 ))}
 
-                <ThemedText className="mb-2 mt-4 font-semibold">Current Prescriptions</ThemedText>
+                <ThemedText className="mb-2 mt-4 font-semibold">Prescrições atuais</ThemedText>
                 {prescribedExercises.length === 0 ? (
-                  <ThemedText className="text-muted">No exercises prescribed yet</ThemedText>
+                  <ThemedText className="text-muted">Nenhum exercício prescrito ainda</ThemedText>
                 ) : (
                   prescribedExercises.map((prescription) => (
                     <ThemedView key={prescription.id} variant="surfaceStrong" className="p-3 mb-2 rounded-2xl">
@@ -199,7 +199,7 @@ export default function PatientsScreen() {
               className="px-4 py-3 rounded-2xl border border-outline bg-surface mt-4"
               onPress={closePrescriptionModal}
             >
-              <ThemedText className="text-center">Close</ThemedText>
+              <ThemedText className="text-center">Fechar</ThemedText>
             </TouchableOpacity>
           </ThemedView>
         </ScrollView>
@@ -209,10 +209,10 @@ export default function PatientsScreen() {
 
   return (
     <ThemedView variant="transparent" className="flex-1">
-      <ThemedText type="title" className="p-4">My Patients</ThemedText>
+      <ThemedText type="title" className="p-4">Meus pacientes</ThemedText>
       {patients.length === 0 ? (
         <ThemedView variant="transparent" className="flex-1 justify-center items-center">
-          <ThemedText className="text-lg text-muted">No patients assigned</ThemedText>
+          <ThemedText className="text-lg text-muted">Nenhum paciente atribuído</ThemedText>
         </ThemedView>
       ) : (
         <FlatList

@@ -37,7 +37,7 @@ export default function ManagePhysiosScreen() {
       const fetchedPhysios = await apiService.getPhysios();
       setPhysios(fetchedPhysios);
     } catch (error) {
-      showAlert('Error', 'Failed to fetch physiotherapists');
+      showAlert('Erro', 'Falha ao buscar fisioterapeutas');
       console.error('Error fetching physiotherapists:', error);
     } finally {
       setFetchLoading(false);
@@ -74,7 +74,7 @@ export default function ManagePhysiosScreen() {
 
   const handleCreatePhysio = async () => {
     if (!createForm.name || !createForm.email) {
-      showAlert('Error', 'Name and email are required');
+      showAlert('Erro', 'Nome e e-mail são obrigatórios');
       return;
     }
 
@@ -83,10 +83,10 @@ export default function ManagePhysiosScreen() {
       await apiService.createPhysio(createForm);
       
       fetchPhysios();
-      showAlert('Success', 'Physiotherapist created successfully');
+      showAlert('Sucesso', 'Fisioterapeuta criado com sucesso');
       closeModal();
     } catch (error) {
-      showAlert('Error', 'Failed to create physiotherapist');
+      showAlert('Erro', 'Falha ao criar fisioterapeuta');
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ export default function ManagePhysiosScreen() {
 
   const handleEditPhysio = async () => {
     if (!selectedPhysio) {
-      showAlert('Error', 'No physiotherapist selected');
+      showAlert('Erro', 'Nenhum fisioterapeuta selecionado');
       return;
     }
 
@@ -108,10 +108,10 @@ export default function ManagePhysiosScreen() {
       await apiService.updatePhysio(selectedPhysio.userId, editForm);
       // Update the physio in the local state
       fetchPhysios();
-      showAlert('Success', 'Physiotherapist updated successfully');
+      showAlert('Sucesso', 'Fisioterapeuta atualizado com sucesso');
       closeModal();
     } catch (error) {
-      showAlert('Error', 'Failed to update physiotherapist');
+      showAlert('Erro', 'Falha ao atualizar fisioterapeuta');
     } finally {
       setLoading(false);
     }
@@ -120,21 +120,21 @@ export default function ManagePhysiosScreen() {
   return (
     <ScrollView className="flex-1 pb-32">
       <ThemedView variant="transparent" className="p-6">
-        <ThemedText type="title" className="mb-6">Manage Physiotherapists</ThemedText>
+  <ThemedText type="title" className="mb-6">Gerenciar fisioterapeutas</ThemedText>
 
         <TouchableOpacity
           className="bg-accent p-4 rounded-3xl mb-6"
           onPress={() => openModal('create')}
         >
-          <ThemedText className="text-white text-center font-bold">Create New Physiotherapist</ThemedText>
+          <ThemedText className="text-white text-center font-bold">Criar novo fisioterapeuta</ThemedText>
         </TouchableOpacity>
 
-        <ThemedText type="subtitle" className="mb-4">Physiotherapists</ThemedText>
+  <ThemedText type="subtitle" className="mb-4">Fisioterapeutas</ThemedText>
 
         {fetchLoading ? (
           <ActivityIndicator size="large" color="#7F5AF0" />
         ) : physios.length === 0 ? (
-          <ThemedText className="text-center text-muted">No physiotherapists found</ThemedText>
+          <ThemedText className="text-center text-muted">Nenhum fisioterapeuta encontrado</ThemedText>
         ) : (
           physios.map((physio) => (
             <ThemedView key={physio.id} variant="surface" className="p-5 rounded-3xl mb-4">
@@ -145,7 +145,7 @@ export default function ManagePhysiosScreen() {
                 className="bg-accent px-3 py-3 rounded-2xl flex-1"
                 onPress={() => openModal('edit', physio)}
               >
-                <ThemedText className="text-white text-center text-sm">Edit</ThemedText>
+                  <ThemedText className="text-white text-center text-sm">Editar</ThemedText>
               </TouchableOpacity>
             </ThemedView>
           ))
@@ -170,15 +170,15 @@ export default function ManagePhysiosScreen() {
         <ThemedView className="flex-1 justify-center items-center bg-black bg-opacity-50" variant='surface'>
           <ThemedView variant="background" className="p-6 rounded-3xl w-11/12 max-w-md">
             <ThemedText type="subtitle" className="mb-4">
-              {modalType === 'create' && 'Create New Physiotherapist'}
-              {modalType === 'edit' && 'Edit Physiotherapist'}
+              {modalType === 'create' && 'Cadastrar novo fisioterapeuta'}
+              {modalType === 'edit' && 'Editar fisioterapeuta'}
             </ThemedText>
 
             {modalType === 'create' && (
               <>
                 <TextInput
                   className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                  placeholder="Name"
+                  placeholder="Nome"
                   placeholderTextColor="#7A86A8"
                   value={createForm.name}
                   onChangeText={(text) => setCreateForm(prev => ({ ...prev, name: text }))}
@@ -193,7 +193,7 @@ export default function ManagePhysiosScreen() {
                 />
                 <TextInput
                   className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                  placeholder="Password"
+                  placeholder="Senha"
                   placeholderTextColor="#7A86A8"
                   value={createForm.password}
                   onChangeText={(text) => setCreateForm(prev => ({ ...prev, password: text }))}
@@ -201,7 +201,7 @@ export default function ManagePhysiosScreen() {
                 />
                 <TextInput
                   className="rounded-2xl border border-outline px-4 py-3 mb-4 text-white bg-surface"
-                  placeholder="Phone (optional)"
+                  placeholder="Telefone (opcional)"
                   placeholderTextColor="#7A86A8"
                   value={createForm.phone}
                   onChangeText={(text) => setCreateForm(prev => ({ ...prev, phone: text }))}
@@ -214,7 +214,7 @@ export default function ManagePhysiosScreen() {
               <>
                 <TextInput
                   className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                  placeholder="Name"
+                  placeholder="Nome"
                   placeholderTextColor="#7A86A8"
                   value={editForm.name}
                   onChangeText={(text) => setEditForm(prev => ({ ...prev, name: text }))}
@@ -229,7 +229,7 @@ export default function ManagePhysiosScreen() {
                 />
                 <TextInput
                   className="rounded-2xl border border-outline px-4 py-3 mb-4 text-white bg-surface"
-                  placeholder="New Password (leave empty to keep current)"
+                  placeholder="Nova Senha (deixe em branco para manter a atual)"
                   placeholderTextColor="#7A86A8"
                   value={editForm.password}
                   onChangeText={(text) => setEditForm(prev => ({ ...prev, password: text }))}
@@ -243,7 +243,7 @@ export default function ManagePhysiosScreen() {
                 className="px-4 py-3 rounded-2xl border border-outline bg-surface"
                 onPress={closeModal}
               >
-                <ThemedText>Cancel</ThemedText>
+                <ThemedText>Cancelar</ThemedText>
               </TouchableOpacity>
               <TouchableOpacity
                 className="bg-accent px-4 py-3 rounded-2xl"
@@ -257,8 +257,8 @@ export default function ManagePhysiosScreen() {
                   <ActivityIndicator color="white" />
                 ) : (
                   <ThemedText className="text-white">
-                    {modalType === 'create' && 'Create'}
-                    {modalType === 'edit' && 'Update'}
+                    {modalType === 'create' && 'Criar'}
+                    {modalType === 'edit' && 'Atualizar'}
                   </ThemedText>
                 )}
               </TouchableOpacity>
@@ -268,4 +268,4 @@ export default function ManagePhysiosScreen() {
       </Modal>
     );
   }
-}
+} 

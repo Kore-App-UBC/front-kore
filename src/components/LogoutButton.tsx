@@ -1,18 +1,14 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import { ThemedText } from './themed-text';
 
-type LogoutButtonProps = {
-  onLogout?: () => void;
-};
-
-export default function LogoutButton({ onLogout }: LogoutButtonProps) {
+export default function LogoutButton() {
   const { signOut, loading } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
-    onLogout?.();
   };
 
   return (
@@ -20,10 +16,20 @@ export default function LogoutButton({ onLogout }: LogoutButtonProps) {
       style={[styles.button, loading && styles.buttonDisabled]}
       onPress={handleLogout}
       disabled={loading}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!loading }}
     >
-      <ThemedText style={styles.buttonText}>
-        {loading ? 'Logging out...' : 'Logout'}
-      </ThemedText>
+      <View style={styles.content}>
+        {loading ? (
+          <ActivityIndicator size="small" color="#fff" style={styles.icon} />
+        ) : (
+          <MaterialIcons name="exit-to-app" size={18} color="#fff" style={styles.icon} />
+        )}
+
+        <ThemedText style={styles.buttonText}>
+          {loading ? 'Saindo...' : 'Sair'}
+        </ThemedText>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -48,5 +54,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginRight: 10,
   },
 });

@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Redirect, Tabs } from 'expo-router';
-import React from 'react';
+import { router, Tabs } from 'expo-router';
+import React, { useEffect } from 'react';
 
 import LogoutButton from '@/src/components/LogoutButton';
 import { useFloatingTabOptions } from '@/src/components/useFloatingTabOptions';
@@ -9,9 +9,11 @@ import { useAuthStore } from '../../src/state/authStore';
 export default function PhysioTabLayout() {
   const { isAuthenticated, user } = useAuthStore();
 
-  if (!isAuthenticated || user?.role !== 'PHYSIOTHERAPIST') {
-    return <Redirect href="/(auth)/login" />;
-  }
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'PHYSIOTHERAPIST') {
+      router.replace('/(auth)/login');
+    }
+  }, [isAuthenticated, user, router]);
 
   const headerRight = () => (
     <LogoutButton />
@@ -38,21 +40,21 @@ export default function PhysioTabLayout() {
       <Tabs.Screen
         name="patients"
         options={{
-          title: 'Patients',
+          title: 'Pacientes',
           tabBarIcon: renderIcon('people', 'people-outline'),
         }}
       />
       <Tabs.Screen
         name="submission-queue"
         options={{
-          title: 'Submission Queue',
+          title: 'Fila de Envios',
           tabBarIcon: renderIcon('file-tray-full', 'file-tray-full-outline'),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: 'Perfil',
           tabBarIcon: renderIcon('person-circle', 'person-circle-outline'),
         }}
       />

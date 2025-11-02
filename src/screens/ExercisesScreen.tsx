@@ -21,7 +21,7 @@ export default function ExercisesScreen() {
       const data = await apiService.getPatientExercises();
       setExercises(data);
     } catch (err) {
-      setError('Failed to load exercises. Please try again.');
+      setError('Falha ao carregar exercícios. Por favor, tente novamente.');
       console.error('Error fetching exercises:', err);
     } finally {
       setLoading(false);
@@ -33,7 +33,7 @@ export default function ExercisesScreen() {
       <ThemedView className="p-4 m-2 rounded-lg border border-gray-200" variant='surfaceStrong'>
         <ThemedText type="subtitle" className="mb-2">{item.exercise.name}</ThemedText>
         <ThemedText className="mb-2">{item.exercise.description}</ThemedText>
-        <ThemedText className="text-sm text-gray-600">Prescribed At: {new Date(item.prescribedAt).toLocaleDateString()}</ThemedText>
+        <ThemedText className="text-sm text-gray-600">Prescrito em: {new Date(item.prescribedAt).toLocaleDateString()}</ThemedText>
       </ThemedView>
     </TouchableOpacity>
   );
@@ -42,7 +42,7 @@ export default function ExercisesScreen() {
     return (
       <ThemedView className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" />
-        <ThemedText className="mt-4">Loading exercises...</ThemedText>
+        <ThemedText className="mt-4">Carregando exercícios...</ThemedText>
       </ThemedView>
     );
   }
@@ -56,7 +56,7 @@ export default function ExercisesScreen() {
           onPress={fetchExercises}
           className="text-blue-500 underline"
         >
-          Try Again
+          Tentar novamente
         </ThemedText>
       </ThemedView>
     );
@@ -64,10 +64,10 @@ export default function ExercisesScreen() {
 
   return (
     <ThemedView className="flex-1">
-      <ThemedText type="title" className="p-4 text-center">My Exercises</ThemedText>
+      <ThemedText type="title" className="p-4 text-center">Meus exercícios</ThemedText>
       {exercises.length === 0 ? (
         <ThemedView className="flex-1 justify-center items-center">
-          <ThemedText>No exercises assigned yet.</ThemedText>
+          <ThemedText>Nenhum exercício atribuído ainda.</ThemedText>
         </ThemedView>
       ) : (
         <FlatList

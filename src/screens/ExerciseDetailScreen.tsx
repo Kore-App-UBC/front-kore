@@ -3,7 +3,7 @@ import { Platform, Text, View } from "react-native";
 const isAndroid = Platform.OS === "android";
 let ScreenElement = () => (
   <View className="flex flex-col justify-center items-center w-full h-full">
-    <Text className="text-white text-2xl select-none">This screen is only supported for Android.</Text>
+    <Text className="text-white text-2xl select-none">Esta tela só é compatível com Android.</Text>
   </View>
 );
 

@@ -39,7 +39,7 @@ export default function SubmissionDetailScreen() {
       const data = await apiService.getSubmissionDetail(submissionId);
       setSubmission(data);
     } catch (err) {
-      setError('Failed to load submission details');
+      setError('Falha ao carregar detalhes do envio');
       console.error(err);
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ export default function SubmissionDetailScreen() {
 
   const handleSubmitFeedback = async () => {
     if (!feedback) {
-      setAlertState({ title: 'Error', message: 'Please provide feedback' });
+      setAlertState({ title: 'Erro', message: 'Por favor, forneça feedback' });
       return;
     }
 
@@ -59,8 +59,8 @@ export default function SubmissionDetailScreen() {
       };
       await apiService.submitFeedback(submissionId, feedbackData);
       setAlertState({
-        title: 'Success',
-        message: 'Feedback submitted successfully',
+        title: 'Sucesso',
+        message: 'Feedback enviado com sucesso',
         buttons: [
           {
             text: 'OK',
@@ -74,7 +74,7 @@ export default function SubmissionDetailScreen() {
         ],
       });
     } catch (err) {
-      setAlertState({ title: 'Error', message: 'Failed to submit feedback' });
+      setAlertState({ title: 'Erro', message: 'Falha ao enviar feedback' });
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -84,7 +84,7 @@ export default function SubmissionDetailScreen() {
   if (loading) {
     return (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg">Loading...</ThemedText>
+        <ThemedText className="text-lg">Carregando...</ThemedText>
       </ThemedView>
     );
   }
@@ -92,12 +92,12 @@ export default function SubmissionDetailScreen() {
   if (error || !submission) {
     return (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg text-danger">{error || 'Submission not found'}</ThemedText>
+        <ThemedText className="text-lg text-danger">{error || 'Detalhes do envio não encontrados'}</ThemedText>
         <TouchableOpacity
           className="mt-4 px-5 py-3 bg-accent rounded-2xl"
           onPress={fetchSubmissionDetail}
         >
-          <ThemedText className="text-white">Retry</ThemedText>
+          <ThemedText className="text-white">Tentar Novamente</ThemedText>
         </TouchableOpacity>
       </ThemedView>
     );
@@ -107,25 +107,25 @@ export default function SubmissionDetailScreen() {
     <ThemedView variant="transparent">
       <ScrollView className='w-full flex flex-col items-center pb-32'>
         <ThemedView variant="transparent" className="p-6 max-w-[800px] w-full">
-          <ThemedText className="text-2xl font-bold mb-4" type='title'>Submission Details</ThemedText>
+          <ThemedText className="text-2xl font-bold mb-4" type='title'>Detalhes do envio</ThemedText>
 
           <ThemedView variant="surfaceStrong" className="mb-4 p-5 rounded-3xl">
-            <ThemedText className="text-lg font-semibold">Patient: {submission.patient.user.name}</ThemedText>
+            <ThemedText className="text-lg font-semibold">Paciente: {submission.patient.user.name}</ThemedText>
             <ThemedText className="text-muted">{submission.patient.user.email}</ThemedText>
           </ThemedView>
 
           <ThemedView variant="surfaceStrong" className="mb-4 p-5 rounded-3xl">
-            <ThemedText className="text-lg font-semibold">Exercise: {submission.exercise.name}</ThemedText>
+            <ThemedText className="text-lg font-semibold">Exercício: {submission.exercise.name}</ThemedText>
             <ThemedText className="text-muted">{submission.exercise.description}</ThemedText>
           </ThemedView>
 
           <ThemedView variant="surfaceStrong" className="mb-4 p-5 rounded-3xl">
-            <ThemedText className="text-muted">Submitted: {new Date(submission.submittedAt).toLocaleString()}</ThemedText>
+            <ThemedText className="text-muted">Enviado: {new Date(submission.submittedAt).toLocaleString()}</ThemedText>
           </ThemedView>
 
           {submission.videoUrl && (
             <ThemedView variant="background" className="flex flex-col h-fit mb-4 min-h-[300px] p-5 rounded-3xl">
-              <ThemedText className="text-lg font-semibold mb-2">Video Submission</ThemedText>
+              <ThemedText className="text-lg font-semibold mb-2">Vídeo do envio</ThemedText>
               {Platform.OS === 'web' ? (
                 <video
                   controls
@@ -165,13 +165,13 @@ export default function SubmissionDetailScreen() {
           )}
 
           <ThemedView variant="background" className="mb-6 p-6 rounded-3xl">
-            <ThemedText className="text-lg font-semibold mb-2">Provide Feedback</ThemedText>
+            <ThemedText className="text-lg font-semibold mb-2">Fornecer Feedback</ThemedText>
 
             {/* score removed - only feedback comments are collected */}
 
             <TextInput
               className="rounded-2xl border border-outline px-4 py-3 mb-4 h-24 text-white bg-surface"
-              placeholder="Feedback comments"
+              placeholder="Deixe seu feedback aqui..."
               placeholderTextColor="#7A86A8"
               value={feedback}
               onChangeText={setFeedback}
@@ -185,7 +185,7 @@ export default function SubmissionDetailScreen() {
               disabled={submitting}
             >
               <ThemedText className="text-white text-center font-semibold">
-                {submitting ? 'Submitting...' : 'Submit Feedback'}
+                {submitting ? 'Enviando...' : 'Enviar Feedback'}
               </ThemedText>
             </TouchableOpacity>
           </ThemedView>

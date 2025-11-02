@@ -28,7 +28,7 @@ export default function SubmissionQueueScreen() {
       const data = await apiService.getSubmissionQueue();
       setSubmissions(data);
     } catch (err) {
-      setError('Failed to load submissions');
+      setError('Falha ao carregar submissões');
       console.error(err);
     } finally {
       setLoading(false);
@@ -91,7 +91,15 @@ export default function SubmissionQueueScreen() {
                 item.status === 'pending' ? 'text-amber-800' : 'text-[#0a7ea4]'
               }`}
             >
-              {item.status}
+              {item.status === 'pending'
+                ? 'Pendente'
+                : item.status === 'reviewed'
+                ? 'Revisado'
+                : item.status === 'approved'
+                ? 'Aprovado'
+                : item.status === 'rejected'
+                ? 'Rejeitado'
+                : item.status}
             </ThemedText>
           </View>
 
@@ -104,7 +112,7 @@ export default function SubmissionQueueScreen() {
   if (loading && !refreshing) {
     return (
       <ThemedView className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg">Loading submissions...</ThemedText>
+  <ThemedText className="text-lg">Carregando submissões...</ThemedText>
       </ThemedView>
     );
   }
@@ -117,7 +125,7 @@ export default function SubmissionQueueScreen() {
             className="px-4 py-2 bg-[#0a7ea4] rounded"
           onPress={fetchSubmissions}
         >
-          <ThemedText className="text-white">Retry</ThemedText>
+          <ThemedText className="text-white">Tentar novamente</ThemedText>
         </TouchableOpacity>
       </ThemedView>
     );
@@ -126,10 +134,10 @@ export default function SubmissionQueueScreen() {
   return (
     <ThemedView className="flex-1">
       <ScrollView className='flex flex-col items-center w-full pb-32'>
-        <ThemedText type="title" className="p-4">Submission Queue</ThemedText>
+  <ThemedText type="title" className="p-4">Fila de submissões</ThemedText>
         {submissions.length === 0 ? (
-          <ThemedView className="flex-1 justify-center items-center">
-            <ThemedText className="text-lg">No submissions to review</ThemedText>
+            <ThemedView className="flex-1 justify-center items-center">
+            <ThemedText className="text-lg">Nenhuma submissão para revisar</ThemedText>
           </ThemedView>
         ) : (
           <FlatList

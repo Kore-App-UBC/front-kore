@@ -13,7 +13,7 @@ export default function ProfileScreen() {
   if (!isAuthenticated || !user) {
     return (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg text-danger">Not authenticated</ThemedText>
+        <ThemedText className="text-lg text-danger">Não autenticado</ThemedText>
       </ThemedView>
     );
   }
@@ -21,7 +21,7 @@ export default function ProfileScreen() {
   return (
     <ScrollView className="flex-1 pb-32">
       <ThemedView variant="transparent" className="p-6">
-        <ThemedText type="title" className="mb-6">Profile</ThemedText>
+  <ThemedText type="title" className="mb-6">Perfil</ThemedText>
 
         <ThemedView variant="surfaceStrong" className="p-6 rounded-3xl">
           <View className="items-center mb-6">
@@ -36,32 +36,32 @@ export default function ProfileScreen() {
 
           <View className="gap-4">
             <View className="flex-row justify-between py-2 border-b border-outline">
-              <ThemedText className="text-muted">Email</ThemedText>
+              <ThemedText className="text-muted">E-mail</ThemedText>
               <ThemedText className="font-medium">{user.email}</ThemedText>
             </View>
 
             <View className="flex-row justify-between py-2 border-b border-outline">
-              <ThemedText className="text-muted">Role</ThemedText>
+              <ThemedText className="text-muted">Função</ThemedText>
               <ThemedText className="font-medium capitalize">{user.role}</ThemedText>
             </View>
 
             <View className="flex-row justify-between py-2">
-              <ThemedText className="text-muted">User ID</ThemedText>
+              <ThemedText className="text-muted">ID do usuário</ThemedText>
               <ThemedText className="font-medium">{user.id}</ThemedText>
             </View>
           </View>
         </ThemedView>
 
         <ThemedView variant="surface" className="mt-6 p-5 rounded-3xl">
-          <ThemedText className="text-lg font-semibold mb-2">Account Information</ThemedText>
+          <ThemedText className="text-lg font-semibold mb-2">Informação da Conta</ThemedText>
           <ThemedText className="text-muted text-sm">
-            As a physiotherapist, you can manage your assigned patients, review exercise submissions,
-            and provide feedback to help your patients progress in their rehabilitation.
+            Como fisioterapeuta, você pode gerenciar seus pacientes atribuídos, revisar submissões de exercícios
+            e fornecer feedback para ajudar seus pacientes a progredirem na reabilitação.
           </ThemedText>
         </ThemedView>
 
         <View className="mt-6">
-          <LogoutButton onLogout={() => router.replace('/(auth)/login')} />
+          <LogoutButton />
         </View>
       </ThemedView>
     </ScrollView>

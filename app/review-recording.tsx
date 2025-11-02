@@ -32,12 +32,12 @@ export default function ReviewRecordingPage() {
 
   const handleSend = async () => {
     if (!uri) {
-      showAlert('No video', 'No recorded video was provided.');
+      showAlert('Nenhum vídeo', 'Nenhum vídeo gravado foi fornecido.');
       return;
     }
 
     if (!exerciseId) {
-      showAlert('Missing exercise', 'No exercise id provided to submit the recording.');
+      showAlert('Exercício ausente', 'Nenhum id de exercício fornecido para enviar a gravação.');
       return;
     }
 
@@ -46,19 +46,18 @@ export default function ReviewRecordingPage() {
     try {
       const videoFile = {
         uri: `file://${uri}`,
-        // uri: uri,
         name: 'video.mp4',
         type: 'video/mp4',
       };
 
       const resp = await apiService.submitExercise(exerciseId as string, videoFile as any, patientComments || undefined);
 
-      showAlert('Sent', resp?.message || 'Video sent successfully.');
+  showAlert('Enviado', resp?.message || 'Vídeo enviado com sucesso.');
       router.back();
     } catch (e: any) {
       console.error('Send failed', e);
-      const message = e?.message || e?.responseData?.message || 'Failed to send video.';
-      showAlert('Error', message);
+      const message = e?.message || e?.responseData?.message || 'Falha ao enviar vídeo.';
+      showAlert('Erro', message);
     } finally {
       setIsSending(false);
     }
@@ -77,9 +76,9 @@ export default function ReviewRecordingPage() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Review Recording</Text>
+          <Text style={styles.title}>Revisar gravação</Text>
           {!uri ? (
-            <Text style={styles.message}>No recording found.</Text>
+            <Text style={styles.message}>Nenhuma gravação encontrada.</Text>
           ) : (
             <View style={[styles.videoContainer, { height: videoHeight }]}>
               <Video
@@ -94,11 +93,11 @@ export default function ReviewRecordingPage() {
           )}
 
           <View style={styles.commentSection}>
-            <Text style={styles.commentLabel}>Comments (optional)</Text>
+            <Text style={styles.commentLabel}>Comentários (opcional)</Text>
             <TextInput
               value={patientComments}
               onChangeText={setPatientComments}
-              placeholder="Add notes for your physio..."
+              placeholder="Adicione notas para seu fisioterapeuta..."
               placeholderTextColor="#999"
               style={styles.commentBox}
               multiline
@@ -109,10 +108,10 @@ export default function ReviewRecordingPage() {
 
           <View style={styles.actions}>
             <Pressable style={[styles.button, styles.sendButton]} onPress={handleSend} disabled={isSending}>
-              <Text style={styles.buttonText}>{isSending ? 'Sending...' : 'Send'}</Text>
+              <Text style={styles.buttonText}>{isSending ? 'Enviando...' : 'Enviar'}</Text>
             </Pressable>
             <Pressable style={[styles.button, styles.retakeButton]} onPress={handleRetake} disabled={isSending}>
-              <Text style={styles.buttonText}>Retake</Text>
+              <Text style={styles.buttonText}>Regravar</Text>
             </Pressable>
           </View>
         </View>

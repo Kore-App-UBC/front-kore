@@ -301,8 +301,8 @@ export default function ExerciseDetailScreenMobile() {
     return lines;
   };
 
-  if (!hasPermission) return <Text className='text-white'>No permission</Text>;
-  if (device == null) return <Text className='text-white'>No camera</Text>;
+  if (!hasPermission) return <Text className='text-white'>Sem permissão</Text>;
+  if (device == null) return <Text className='text-white'>Sem câmera</Text>;
 
   return (
     <View style={StyleSheet.absoluteFill} onLayout={onLayout}>
@@ -332,19 +332,19 @@ export default function ExerciseDetailScreenMobile() {
       </View>
       {/* Recording controls - top-right below animation */}
       <View style={styles.recordControlContainer}>
-        <Pressable
+          <Pressable
           style={styles.flipButton}
           onPress={() => setCameraPosition(prev => prev === 'front' ? 'back' : 'front')}
-          accessibilityLabel="Flip camera"
+          accessibilityLabel="Trocar câmera"
         >
           <MaterialIcons name="flip-camera-android" size={22} color="white" />
         </Pressable>
         {!isRecording ? (
-          <Pressable style={styles.recordButton} onPress={startRecording} accessibilityLabel="Start recording">
+          <Pressable style={styles.recordButton} onPress={startRecording} accessibilityLabel="Iniciar gravação">
             <MaterialIcons name="fiber-manual-record" size={20} color="white" />
           </Pressable>
         ) : (
-          <Pressable style={[styles.recordButton, styles.recording]} onPress={stopRecording} accessibilityLabel="Stop recording">
+          <Pressable style={[styles.recordButton, styles.recording]} onPress={stopRecording} accessibilityLabel="Parar gravação">
             <MaterialIcons name="stop" size={20} color="white" />
           </Pressable>
         )}
@@ -352,10 +352,10 @@ export default function ExerciseDetailScreenMobile() {
       </View>
       {/* Rep count display */}
       <View style={styles.repCountContainer}>
-        <Text style={styles.repCountText}>Reps: {repCount}</Text>
-        <Text style={styles.stageText}>Stage: {exerciseStage || 'None'}</Text>
+        <Text style={styles.repCountText}>Repetições: {repCount}</Text>
+        <Text style={styles.stageText}>Fase: {exerciseStage || 'Nenhuma'}</Text>
         {repCount > 10 && (
-          <Text style={styles.congratulationText}>Great job! You've completed more than 10 reps!</Text>
+          <Text style={styles.congratulationText}>Bom trabalho! Você completou mais de 10 repetições!</Text>
         )}
       </View>
     </View>

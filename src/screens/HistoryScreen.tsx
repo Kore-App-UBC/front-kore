@@ -1,5 +1,5 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList } from 'react-native';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
@@ -10,6 +10,8 @@ export default function HistoryScreen() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const reversedSubmissions = useMemo(() => [...submissions].reverse(), [submissions]);
 
   useEffect(() => {
     fetchSubmissionHistory();
@@ -22,7 +24,7 @@ export default function HistoryScreen() {
       const data = await apiService.get<Submission[]>('/patient/submissions/history');
       setSubmissions(data.reverse());
     } catch (err) {
-      setError('Failed to load submission history. Please try again.');
+      setError('Falha ao carregar o histórico de envios. Por favor, tente novamente.');
       console.error('Error fetching submission history:', err);
     } finally {
       setLoading(false);
@@ -45,7 +47,7 @@ export default function HistoryScreen() {
       variant='surfaceStrong'
     >
       <ThemedView className="flex-row justify-between items-center mb-2 gap-7 !bg-transparent">
-        <ThemedText type="subtitle" className="flex-1">Exercise Submission</ThemedText>
+        <ThemedText type="subtitle" className="flex-1">Envio de exercício</ThemedText>
         <ThemedView className="flex-row items-center gap-2 p-3 rounded-md">
           {item.status === 'PROCESSED' && (
             <ThemedView className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-100">
@@ -55,10 +57,9 @@ export default function HistoryScreen() {
           <ThemedText className="text-sm text-gray-600">{formatDate(new Date(item.createdAt))}</ThemedText>
         </ThemedView>
       </ThemedView>
-      <ThemedText className="text-sm text-gray-600 mb-1">Exercise ID: {item.exerciseId}</ThemedText>
       {item.report?.physioFeedback && (
         <ThemedView className="mt-2 p-3 rounded-md">
-          <ThemedText type="defaultSemiBold" className="mb-1">Physio Feedback:</ThemedText>
+          <ThemedText type="defaultSemiBold" className="mb-1">Feedback do fisioterapeuta:</ThemedText>
           <ThemedText className="text-sm">{item.report.physioFeedback}</ThemedText>
         </ThemedView>
       )}
@@ -69,7 +70,7 @@ export default function HistoryScreen() {
     return (
       <ThemedView className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" />
-        <ThemedText className="mt-4">Loading submission history...</ThemedText>
+        <ThemedText className="mt-4">Carregando histórico de envios...</ThemedText>
       </ThemedView>
     );
   }
@@ -83,7 +84,7 @@ export default function HistoryScreen() {
           onPress={fetchSubmissionHistory}
           className="text-blue-500 underline"
         >
-          Try Again
+          Tentar novamente
         </ThemedText>
       </ThemedView>
     );
@@ -91,14 +92,14 @@ export default function HistoryScreen() {
 
   return (
     <ThemedView className="flex-1">
-      <ThemedText type="title" className="p-4 text-center">Submission History</ThemedText>
+      <ThemedText type="title" className="p-4 text-center">Histórico de envios</ThemedText>
       {submissions.length === 0 ? (
         <ThemedView className="flex-1 justify-center items-center">
-          <ThemedText>No submissions yet.</ThemedText>
+          <ThemedText>Nenhum envio ainda.</ThemedText>
         </ThemedView>
       ) : (
         <FlatList
-          data={submissions}
+          data={reversedSubmissions}
           renderItem={renderSubmission}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingBottom: 128 }}

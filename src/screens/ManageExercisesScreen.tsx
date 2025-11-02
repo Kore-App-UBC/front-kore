@@ -61,7 +61,7 @@ export default function ManageExercisesScreen() {
       const fetchedExercises = await apiService.getExercises();
       setExercises(fetchedExercises);
     } catch (error) {
-      showAlert('Error', 'Failed to fetch exercises');
+      showAlert('Erro', 'Falha ao buscar exercícios');
       console.error('Error fetching exercises:', error);
     } finally {
       setFetchLoading(false);
@@ -127,7 +127,7 @@ export default function ManageExercisesScreen() {
 
   const handleCreateExercise = async () => {
     if (!createForm.name || !createForm.description || !createForm.instructionsUrl) {
-      showAlert('Error', 'Name, description, and instructions URL are required');
+      showAlert('Erro', 'Nome, descrição e URL das instruções são obrigatórios');
       return;
     }
 
@@ -135,10 +135,10 @@ export default function ManageExercisesScreen() {
       setLoading(true);
       await apiService.createExercise(createForm);
       fetchExercises();
-      showAlert('Success', 'Exercise created successfully');
+      showAlert('Sucesso', 'Exercício criado com sucesso');
       closeModal();
     } catch (error) {
-      showAlert('Error', 'Failed to create exercise');
+      showAlert('Erro', 'Falha ao criar exercício');
     } finally {
       setLoading(false);
     }
@@ -146,7 +146,7 @@ export default function ManageExercisesScreen() {
 
   const handleUpdateExercise = async () => {
     if (!selectedExercise) {
-      showAlert('Error', 'No exercise selected');
+      showAlert('Erro', 'Nenhum exercício selecionado');
       return;
     }
 
@@ -154,10 +154,10 @@ export default function ManageExercisesScreen() {
       setLoading(true);
       await apiService.updateExercise(selectedExercise.id, updateForm);
       fetchExercises();
-      showAlert('Success', 'Exercise updated successfully');
+      showAlert('Sucesso', 'Exercício atualizado com sucesso');
       closeModal();
     } catch (error) {
-      showAlert('Error', 'Failed to update exercise');
+      showAlert('Erro', 'Falha ao atualizar exercício');
     } finally {
       setLoading(false);
     }
@@ -165,20 +165,20 @@ export default function ManageExercisesScreen() {
 
   const handleDeleteExercise = async (exercise: Exercise) => {
     showAlert(
-      'Delete Exercise',
-      `Are you sure you want to delete "${exercise.name}"?`,
+      'Excluir exercício',
+      `Tem certeza que deseja excluir "${exercise.name}"?`,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Excluir',
           style: 'destructive',
           onPress: async () => {
             try {
               await apiService.deleteExercise(exercise.id);
               fetchExercises();
-              showAlert('Success', 'Exercise deleted successfully');
+              showAlert('Sucesso', 'Exercício excluído com sucesso');
             } catch (error) {
-              showAlert('Error', 'Failed to delete exercise');
+              showAlert('Erro', 'Falha ao excluir exercício');
             }
           },
         },
@@ -197,12 +197,12 @@ export default function ManageExercisesScreen() {
           <ScrollView className="!max-w-1/2 max-h-4/5 pt-10">
             <ThemedView variant="background" className="p-6 rounded-3xl w-full">
               <ThemedText type="subtitle" className="mb-4">
-                {isCreate ? 'Create New Exercise' : 'Update Exercise'}
+                {isCreate ? 'Criar novo exercício' : 'Atualizar exercício'}
               </ThemedText>
 
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Exercise Name"
+                placeholder="Nome do exercício"
                 placeholderTextColor="#7A86A8"
                 value={form.name}
                 onChangeText={(text) => setForm((prev: FormData) => ({ ...prev, name: text }))}
@@ -210,7 +210,7 @@ export default function ManageExercisesScreen() {
 
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Description"
+                placeholder="Descrição"
                 placeholderTextColor="#7A86A8"
                 value={form.description}
                 onChangeText={(text) => setForm((prev: FormData) => ({ ...prev, description: text }))}
@@ -219,21 +219,21 @@ export default function ManageExercisesScreen() {
 
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Instructions URL"
+                placeholder="URL das instruções"
                 placeholderTextColor="#7A86A8"
                 value={form.instructionsUrl}
                 onChangeText={(text) => setForm((prev: FormData) => ({ ...prev, instructionsUrl: text }))}
                 keyboardType="url"
               />
 
-              <ThemedText className="mb-2 font-semibold">Classification Data (Optional)</ThemedText>
+              <ThemedText className="mb-2 font-semibold">Dados de classificação (Opcional)</ThemedText>
 
               <ThemedView className="mb-3">
-                <ThemedText className="mb-1 text-sm text-muted">Thresholds</ThemedText>
+                <ThemedText className="mb-1 text-sm text-muted">Limiares</ThemedText>
                 <ThemedView className="flex-row gap-3">
                   <TextInput
                     className="rounded-2xl border border-outline px-3 py-3 flex-1 text-white bg-surface"
-                    placeholder="Up"
+                    placeholder="Acima"
                     placeholderTextColor="#7A86A8"
                     value={form.classificationData?.thresholds.up?.toString() || ''}
                     onChangeText={(text) => setForm((prev: FormData) => ({
@@ -251,7 +251,7 @@ export default function ManageExercisesScreen() {
                   />
                   <TextInput
                     className="rounded-2xl border border-outline px-3 py-3 flex-1 text-white bg-surface"
-                    placeholder="Down"
+                    placeholder="Abaixo"
                     placeholderTextColor="#7A86A8"
                     value={form.classificationData?.thresholds.down?.toString() || ''}
                     onChangeText={(text) => setForm((prev: FormData) => ({
@@ -270,9 +270,9 @@ export default function ManageExercisesScreen() {
                 </ThemedView>
               </ThemedView>
 
-              <TextInput
+                <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Landmarks (comma-separated)"
+                placeholder="Pontos de referência (separados por vírgula)"
                 placeholderTextColor="#7A86A8"
                 value={form.classificationData?.landmarks?.join(', ') || ''}
                 onChangeText={(text) => setForm((prev: FormData) => ({
@@ -287,7 +287,7 @@ export default function ManageExercisesScreen() {
 
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
-                placeholder="Evaluation Type (high_to_low, low_to_high, custom)"
+                placeholder="Tipo de avaliação (high_to_low, low_to_high, custom)"
                 placeholderTextColor="#7A86A8"
                 value={form.classificationData?.evaluationType || ''}
                 onChangeText={(text) => setForm((prev: FormData) => ({
@@ -300,11 +300,11 @@ export default function ManageExercisesScreen() {
                 }))}
               />
 
-              <ThemedText className="mb-2 font-semibold">Animation Data (Optional)</ThemedText>
+              <ThemedText className="mb-2 font-semibold">Dados de animação (Opcional)</ThemedText>
 
               <TextInput
                 className="rounded-2xl border border-outline px-4 py-3 mb-4 text-white bg-surface"
-                placeholder="Animation Type"
+                placeholder="Tipo de animação"
                 placeholderTextColor="#7A86A8"
                 value={form.animationData?.animationType || ''}
                 onChangeText={(text) => setForm((prev: FormData) => ({
@@ -322,7 +322,7 @@ export default function ManageExercisesScreen() {
                   className="px-4 py-3 rounded-2xl border border-outline bg-surface"
                   onPress={closeModal}
                 >
-                  <ThemedText>Cancel</ThemedText>
+                  <ThemedText>Cancelar</ThemedText>
                 </TouchableOpacity>
                 <TouchableOpacity
                   className="bg-accent px-4 py-3 rounded-2xl"
@@ -333,7 +333,7 @@ export default function ManageExercisesScreen() {
                     <ActivityIndicator color="white" />
                   ) : (
                     <ThemedText className="text-white">
-                      {isCreate ? 'Create' : 'Update'}
+                      {isCreate ? 'Criar' : 'Atualizar'}
                     </ThemedText>
                   )}
                 </TouchableOpacity>
@@ -348,21 +348,21 @@ export default function ManageExercisesScreen() {
   return (
     <ScrollView className="flex-1 pb-32">
       <ThemedView variant="transparent" className="p-6">
-        <ThemedText type="title" className="mb-6">Manage Exercises</ThemedText>
+  <ThemedText type="title" className="mb-6">Gerenciar exercícios</ThemedText>
 
         <TouchableOpacity
           className="bg-accent p-4 rounded-3xl mb-6"
           onPress={() => openModal('create')}
         >
-          <ThemedText className="text-white text-center font-bold">Create New Exercise</ThemedText>
+          <ThemedText className="text-white text-center font-bold">Criar novo exercício</ThemedText>
         </TouchableOpacity>
 
-        <ThemedText type="subtitle" className="mb-4">Exercises</ThemedText>
+  <ThemedText type="subtitle" className="mb-4">Exercícios</ThemedText>
 
         {fetchLoading ? (
           <ActivityIndicator size="large" color="#7F5AF0" />
         ) : exercises.length === 0 ? (
-          <ThemedText className="text-center text-muted">No exercises found</ThemedText>
+          <ThemedText className="text-center text-muted">Nenhum exercício encontrado</ThemedText>
         ) : (
           exercises.map((exercise) => (
             <ThemedView key={exercise.id} variant="surface" className="p-5 rounded-3xl mb-4">
@@ -372,16 +372,16 @@ export default function ManageExercisesScreen() {
 
               {exercise.classificationData && (
                 <ThemedView className="mb-2" variant='transparent'>
-                  <ThemedText className="text-sm font-semibold">Classification:</ThemedText>
-                  <ThemedText className="text-sm">Thresholds: {exercise.classificationData.thresholds.up}° / {exercise.classificationData.thresholds.down}°</ThemedText>
-                  <ThemedText className="text-sm">Type: {exercise.classificationData.evaluationType}</ThemedText>
+                  <ThemedText className="text-sm font-semibold">Classificação:</ThemedText>
+                  <ThemedText className="text-sm">Limiares: {exercise.classificationData.thresholds.up}° / {exercise.classificationData.thresholds.down}°</ThemedText>
+                  <ThemedText className="text-sm">Tipo: {exercise.classificationData.evaluationType}</ThemedText>
                 </ThemedView>
               )}
 
               {exercise.animationData && (
                 <ThemedView className="mb-2" variant='transparent'>
-                  <ThemedText className="text-sm font-semibold">Animation:</ThemedText>
-                  <ThemedText className="text-sm">Type: {exercise.animationData.animationType ?? 'N/A'}</ThemedText>
+                  <ThemedText className="text-sm font-semibold">Animação:</ThemedText>
+                  <ThemedText className="text-sm">Tipo: {exercise.animationData.animationType ?? 'N/A'}</ThemedText>
                 </ThemedView>
               )}
 
@@ -390,13 +390,13 @@ export default function ManageExercisesScreen() {
                   className="bg-accent px-3 py-3 rounded-2xl flex-1"
                   onPress={() => openModal('update', exercise)}
                 >
-                  <ThemedText className="text-white text-center text-sm">Edit</ThemedText>
+                  <ThemedText className="text-white text-center text-sm">Editar</ThemedText>
                 </TouchableOpacity>
                 <TouchableOpacity
                   className="bg-danger px-3 py-3 rounded-2xl flex-1"
                   onPress={() => handleDeleteExercise(exercise)}
                 >
-                  <ThemedText className="text-white text-center text-sm">Delete</ThemedText>
+                  <ThemedText className="text-white text-center text-sm">Excluir</ThemedText>
                 </TouchableOpacity>
               </ThemedView>
             </ThemedView>
