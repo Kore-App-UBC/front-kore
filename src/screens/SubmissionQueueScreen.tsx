@@ -1,21 +1,26 @@
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, RefreshControl, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
 import { SubmissionQueueItem } from '../types';
 
 export default function SubmissionQueueScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [submissions, setSubmissions] = useState<SubmissionQueueItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    fetchSubmissions();
-  }, []);
+    if (isFocused) {
+      fetchSubmissions();
+    }
+  }, [isFocused]);
 
   const fetchSubmissions = async () => {
     try {
@@ -37,30 +42,60 @@ export default function SubmissionQueueScreen() {
   };
 
   const handleSubmissionPress = (submissionId: string) => {
-    navigation.navigate('SubmissionDetail', { submissionId });
+    // navigate using expo-router to the physio submission detail route
+    try {
+      router.push({ pathname: '/(physio)/submission-detail', params: { submissionId } });
+    } catch (e) {
+      console.error('Navigation error', e);
+    }
   };
 
   const renderSubmission = ({ item }: { item: SubmissionQueueItem }) => (
     <TouchableOpacity
-      className="bg-white p-4 mb-2 mx-4 rounded-lg shadow-sm border border-gray-200"
+      className="bg-transparent p-3 mb-2 mx-4 rounded-lg shadow-sm border border-gray-200 w-[500px]"
       onPress={() => handleSubmissionPress(item.id)}
     >
-      <View className="flex-row justify-between items-start">
-        <View className="flex-1">
-          <ThemedText className="text-lg font-semibold">{item.patientName}</ThemedText>
-          <ThemedText className="text-gray-600">{item.exerciseName}</ThemedText>
-          <ThemedText className="text-xs text-gray-400 mt-1">
-            Submitted: {new Date(item.submittedAt).toLocaleString()}
+      <View className="flex-row items-center">
+        {/* Avatar / initials */}
+        <View className="w-12 h-12 rounded-full bg-[#0a7ea4] justify-center items-center mr-3">
+          <ThemedText className="text-sm font-bold text-white">
+            {item.patient.user.name
+              ? item.patient.user.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join('')
+                  .toUpperCase()
+              : '--'}
           </ThemedText>
         </View>
-        <View className={`px-2 py-1 rounded ${
-          item.status === 'pending' ? 'bg-yellow-100' : 'bg-green-100'
-        }`}>
-          <ThemedText className={`text-xs font-medium ${
-            item.status === 'pending' ? 'text-yellow-800' : 'text-green-800'
-          }`}>
-            {item.status === 'pending' ? 'Pending' : 'Reviewed'}
+
+        {/* Main info */}
+        <View className="flex-1">
+          <ThemedText className="text-base font-semibold text-[#0a7ea4]">{item.exercise.name}</ThemedText>
+          <ThemedText className="text-sm text-gray-600">{item.patient.user.name}</ThemedText>
+          <ThemedText className="text-xs text-gray-400 mt-1">
+            {new Date(item.submittedAt).toLocaleString()}
           </ThemedText>
+        </View>
+
+        {/* Status + chevron */}
+        <View className="items-end ml-3">
+          <View
+            className={`px-3 py-1 rounded-full ${
+              item.status === 'pending' ? 'bg-transparent' : 'bg-transparent'
+            }`}
+          >
+            <ThemedText
+              className={`text-xs font-medium ${
+                item.status === 'pending' ? 'text-amber-800' : 'text-[#0a7ea4]'
+              }`}
+            >
+              {item.status}
+            </ThemedText>
+          </View>
+
+          <ThemedText className="text-gray-300 text-xl mt-2">›</ThemedText>
         </View>
       </View>
     </TouchableOpacity>
@@ -79,7 +114,7 @@ export default function SubmissionQueueScreen() {
       <ThemedView className="flex-1 justify-center items-center">
         <ThemedText className="text-lg text-red-500 mb-4">{error}</ThemedText>
         <TouchableOpacity
-          className="px-4 py-2 bg-blue-500 rounded"
+            className="px-4 py-2 bg-[#0a7ea4] rounded"
           onPress={fetchSubmissions}
         >
           <ThemedText className="text-white">Retry</ThemedText>
@@ -90,21 +125,23 @@ export default function SubmissionQueueScreen() {
 
   return (
     <ThemedView className="flex-1">
-      <ThemedText type="title" className="p-4">Submission Queue</ThemedText>
-      {submissions.length === 0 ? (
-        <ThemedView className="flex-1 justify-center items-center">
-          <ThemedText className="text-lg">No submissions to review</ThemedText>
-        </ThemedView>
-      ) : (
-        <FlatList
-          data={submissions}
-          renderItem={renderSubmission}
-          keyExtractor={(item) => item.id}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
-      )}
+      <ScrollView className='flex flex-col items-center w-full pb-32'>
+        <ThemedText type="title" className="p-4">Submission Queue</ThemedText>
+        {submissions.length === 0 ? (
+          <ThemedView className="flex-1 justify-center items-center">
+            <ThemedText className="text-lg">No submissions to review</ThemedText>
+          </ThemedView>
+        ) : (
+          <FlatList
+            data={submissions}
+            renderItem={renderSubmission}
+            keyExtractor={(item) => item.id}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          />
+        )}
+      </ScrollView>
     </ThemedView>
   );
 }

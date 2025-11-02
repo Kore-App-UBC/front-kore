@@ -104,28 +104,29 @@ export default function PatientsScreen() {
 
   const renderPatient = ({ item }: { item: Patient }) => (
     <TouchableOpacity
-      className="bg-transparent p-4 mb-2 mx-4 rounded-lg shadow-sm border border-gray-200 min-w-[50vw]"
+      className="border border-outline bg-surface rounded-3xl px-5 py-4 mb-3 mx-4 min-w-[50vw]"
       onPress={() => openPrescriptionModal(item)}
     >
       <ThemedText className="text-lg font-semibold">{item.user.name}</ThemedText>
-      <ThemedText className="text-gray-600">{item.user.email}</ThemedText>
+      <ThemedText className="text-muted">{item.user.email}</ThemedText>
     </TouchableOpacity>
   );
 
   if (loading && !refreshing) {
     return (
-      <ThemedView className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg">Loading patients...</ThemedText>
+      <ThemedView variant="transparent" className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#7F5AF0" />
+        <ThemedText className="text-lg text-muted mt-4">Loading patients...</ThemedText>
       </ThemedView>
     );
   }
 
   if (error) {
     return (
-      <ThemedView className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg text-red-500 mb-4">{error}</ThemedText>
+      <ThemedView variant="transparent" className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg text-danger mb-4">{error}</ThemedText>
         <TouchableOpacity
-          className="px-4 py-2 bg-blue-500 rounded"
+          className="px-5 py-3 bg-accent rounded-2xl"
           onPress={fetchPatients}
         >
           <ThemedText className="text-white">Retry</ThemedText>
@@ -136,26 +137,26 @@ export default function PatientsScreen() {
 
   const renderPrescriptionModal = () => (
     <Modal visible={prescriptionModalVisible} animationType="slide" transparent>
-      <ThemedView className="flex-1 justify-center items-center bg-black bg-opacity-50">
+      <ThemedView className="flex-1 justify-center items-center bg-black bg-opacity-50" variant='surface'>
         <ScrollView className="flex-1 p-6 w-full flex flex-col items-center">
-          <ThemedView className="w-11/12 max-w-md max-h-4/5 bg-white dark:bg-gray-800 rounded-lg">
+          <ThemedView variant="surfaceStrong" className="w-11/12 max-h-4/5 p-6 rounded-3xl">
             <ThemedText type="subtitle" className="mb-4">
               Manage Prescriptions - {selectedPatient?.user.name}
             </ThemedText>
 
             {prescriptionLoading ? (
-              <ActivityIndicator size="large" color="#007bff" />
+              <ActivityIndicator size="large" color="#7F5AF0" />
             ) : (
               <>
                 <ThemedText className="mb-2 font-semibold">Available Exercises</ThemedText>
                 {exercises.map((exercise) => (
-                  <ThemedView key={exercise.id} className="p-3 mb-3 bg-gray-100 dark:bg-gray-700 rounded">
-                    <ThemedView className="flex-row justify-between items-start mb-2">
-                      <ThemedView className="flex-1 mr-3">
+                  <ThemedView key={exercise.id} variant="surfaceStrong" className="p-3 mb-3 rounded-2xl !bg-transparent">
+                    <ThemedView className="flex-row justify-between items-start mb-2 !bg-transparent">
+                      <ThemedView className="flex-1 mr-3 !bg-transparent">
                         <ThemedText className="font-semibold">{exercise.name}</ThemedText>
-                        <ThemedText className="text-sm text-gray-600 mb-2">{exercise.description}</ThemedText>
+                        <ThemedText className="text-sm text-muted mb-2">{exercise.description}</ThemedText>
                         <TouchableOpacity
-                          className={`px-3 py-1 rounded self-start ${exercise.isPrescribed ? 'bg-red-500' : 'bg-green-500'}`}
+                          className={`px-3 py-1 rounded-2xl self-start ${exercise.isPrescribed ? 'bg-danger' : 'bg-success'}`}
                           onPress={() => exercise.isPrescribed
                             ? handleRemovePrescription(exercise.id)
                             : handlePrescribeExercise(exercise.id)
@@ -179,13 +180,13 @@ export default function PatientsScreen() {
 
                 <ThemedText className="mb-2 mt-4 font-semibold">Current Prescriptions</ThemedText>
                 {prescribedExercises.length === 0 ? (
-                  <ThemedText className="text-gray-500">No exercises prescribed yet</ThemedText>
+                  <ThemedText className="text-muted">No exercises prescribed yet</ThemedText>
                 ) : (
                   prescribedExercises.map((prescription) => (
-                    <ThemedView key={prescription.id} className="p-3 mb-2 bg-blue-50 dark:bg-blue-900 rounded">
+                    <ThemedView key={prescription.id} variant="surfaceStrong" className="p-3 mb-2 rounded-2xl">
                       <ThemedText className="font-semibold">{prescription.exercise.name}</ThemedText>
-                      <ThemedText className="text-sm text-gray-600">{prescription.exercise.description}</ThemedText>
-                      <ThemedText className="text-xs text-gray-500">
+                      <ThemedText className="text-sm text-muted">{prescription.exercise.description}</ThemedText>
+                      <ThemedText className="text-xs text-muted">
                         Prescribed: {new Date(prescription.prescribedAt).toLocaleDateString()}
                       </ThemedText>
                     </ThemedView>
@@ -195,7 +196,7 @@ export default function PatientsScreen() {
             )}
 
             <TouchableOpacity
-              className="bg-gray-300 dark:bg-gray-600 px-4 py-2 rounded mt-4"
+              className="px-4 py-3 rounded-2xl border border-outline bg-surface mt-4"
               onPress={closePrescriptionModal}
             >
               <ThemedText className="text-center">Close</ThemedText>
@@ -207,11 +208,11 @@ export default function PatientsScreen() {
   );
 
   return (
-    <ThemedView className="flex-1">
+    <ThemedView variant="transparent" className="flex-1">
       <ThemedText type="title" className="p-4">My Patients</ThemedText>
       {patients.length === 0 ? (
-        <ThemedView className="flex-1 justify-center items-center">
-          <ThemedText className="text-lg">No patients assigned</ThemedText>
+        <ThemedView variant="transparent" className="flex-1 justify-center items-center">
+          <ThemedText className="text-lg text-muted">No patients assigned</ThemedText>
         </ThemedView>
       ) : (
         <FlatList

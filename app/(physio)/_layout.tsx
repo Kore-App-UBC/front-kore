@@ -1,6 +1,9 @@
-import LogoutButton from '@/src/components/LogoutButton';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
+
+import LogoutButton from '@/src/components/LogoutButton';
+import { useFloatingTabOptions } from '@/src/components/useFloatingTabOptions';
 import { useAuthStore } from '../../src/state/authStore';
 
 export default function PhysioTabLayout() {
@@ -14,32 +17,48 @@ export default function PhysioTabLayout() {
     <LogoutButton />
   );
 
+  const { screenOptions } = useFloatingTabOptions(headerRight);
+
+  const renderIcon = (
+    focusedName: React.ComponentProps<typeof Ionicons>['name'],
+    outlineName: React.ComponentProps<typeof Ionicons>['name'],
+  ) => ({ color, focused }: { color: string; focused: boolean }) => (
+    <Ionicons
+      name={focused ? focusedName : outlineName}
+      size={22}
+      color={color}
+      style={{ marginBottom: -4 }}
+    />
+  );
+
   return (
-    <Tabs>
+    <Tabs
+      screenOptions={{...screenOptions }}
+    >
       <Tabs.Screen
         name="patients"
         options={{
           title: 'Patients',
-          headerRight,
+          tabBarIcon: renderIcon('people', 'people-outline'),
         }}
       />
       <Tabs.Screen
         name="submission-queue"
         options={{
           title: 'Submission Queue',
-          headerRight,
+          tabBarIcon: renderIcon('file-tray-full', 'file-tray-full-outline'),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          headerRight,
+          tabBarIcon: renderIcon('person-circle', 'person-circle-outline'),
         }}
       />
       <Tabs.Screen
         name="submission-detail"
-        options={{ href: null }}
+        options={{ title: 'Submission Details', href: null }}
       />
     </Tabs>
   );

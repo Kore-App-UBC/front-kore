@@ -12,53 +12,53 @@ export default function ProfileScreen() {
 
   if (!isAuthenticated || !user) {
     return (
-      <ThemedView className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg text-red-500">Not authenticated</ThemedText>
+      <ThemedView variant="transparent" className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg text-danger">Not authenticated</ThemedText>
       </ThemedView>
     );
   }
 
   return (
-    <ScrollView className="flex-1">
-      <ThemedView className="p-4">
+    <ScrollView className="flex-1 pb-32">
+      <ThemedView variant="transparent" className="p-6">
         <ThemedText type="title" className="mb-6">Profile</ThemedText>
 
-        <View className="bg-transparent p-6 rounded-lg shadow-sm border border-gray-200">
+        <ThemedView variant="surfaceStrong" className="p-6 rounded-3xl">
           <View className="items-center mb-6">
-            <View className="w-20 h-20 bg-blue-500 rounded-full items-center justify-center mb-4">
+            <View className="w-20 h-20 bg-accent rounded-full items-center justify-center mb-4">
               <ThemedText className="text-white text-2xl font-bold">
                 {user.name.charAt(0).toUpperCase()}
               </ThemedText>
             </View>
             <ThemedText className="text-xl font-semibold">{user.name}</ThemedText>
-            <ThemedText className="text-gray-600 capitalize">{user.role}</ThemedText>
+            <ThemedText className="text-muted capitalize">{user.role}</ThemedText>
           </View>
 
-          <View className="space-y-4">
-            <View className="flex-row justify-between py-2 border-b border-gray-100">
-              <ThemedText className="text-gray-600">Email</ThemedText>
+          <View className="gap-4">
+            <View className="flex-row justify-between py-2 border-b border-outline">
+              <ThemedText className="text-muted">Email</ThemedText>
               <ThemedText className="font-medium">{user.email}</ThemedText>
             </View>
 
-            <View className="flex-row justify-between py-2 border-b border-gray-100">
-              <ThemedText className="text-gray-600">Role</ThemedText>
+            <View className="flex-row justify-between py-2 border-b border-outline">
+              <ThemedText className="text-muted">Role</ThemedText>
               <ThemedText className="font-medium capitalize">{user.role}</ThemedText>
             </View>
 
             <View className="flex-row justify-between py-2">
-              <ThemedText className="text-gray-600">User ID</ThemedText>
+              <ThemedText className="text-muted">User ID</ThemedText>
               <ThemedText className="font-medium">{user.id}</ThemedText>
             </View>
           </View>
-        </View>
+        </ThemedView>
 
-        <View className="mt-6 bg-transparent p-4 rounded-lg shadow-sm border border-gray-200">
+        <ThemedView variant="surface" className="mt-6 p-5 rounded-3xl">
           <ThemedText className="text-lg font-semibold mb-2">Account Information</ThemedText>
-          <ThemedText className="text-gray-600 text-sm">
+          <ThemedText className="text-muted text-sm">
             As a physiotherapist, you can manage your assigned patients, review exercise submissions,
             and provide feedback to help your patients progress in their rehabilitation.
           </ThemedText>
-        </View>
+        </ThemedView>
 
         <View className="mt-6">
           <LogoutButton onLogout={() => router.replace('/(auth)/login')} />

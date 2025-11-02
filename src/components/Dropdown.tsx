@@ -33,30 +33,36 @@ export default function Dropdown({
     setIsOpen(false);
   };
 
+  const isPlaceholder = !selectedOption;
+
   return (
-    <ThemedView className={`relative ${className}`}>
+    <ThemedView variant="transparent" className={`relative ${className}`}>
       <TouchableOpacity
-        className="border border-gray-300 dark:border-gray-600 rounded p-3 flex-row justify-between items-center"
+        className="rounded-2xl border border-outline bg-surface px-4 py-3 flex-row justify-between items-center"
         onPress={() => setIsOpen(!isOpen)}
       >
-        <ThemedText className="text-black dark:text-white flex-1">
+        <ThemedText className={`flex-1 ${isPlaceholder ? 'text-muted' : 'text-white'}`}>
           {displayText}
         </ThemedText>
-        <ThemedText className="text-gray-500 ml-2">
+        <ThemedText className="ml-2 text-muted">
           {isOpen ? '▲' : '▼'}
         </ThemedText>
       </TouchableOpacity>
 
       {isOpen && (
-        <ThemedView className="absolute top-full left-0 right-0 border border-gray-300 dark:border-gray-600 rounded-b bg-white dark:bg-gray-800" style={{ zIndex: 9999, maxHeight: 160 }}>
+        <ThemedView
+          variant="surfaceStrong"
+          className="absolute top-full left-0 right-0 mt-2 rounded-xl"
+          style={{ zIndex: 9999, maxHeight: 160 }}
+        >
           <ScrollView>
             {options.map((option) => (
               <TouchableOpacity
                 key={option.value}
-                className="p-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                className="p-3 border-b border-outline last:border-b-0 bg-surface-strong/0 hover:bg-surface-strong/40 transition-all !duration-100 rounded-xl"
                 onPress={() => handleSelect(option.value)}
               >
-                <ThemedText className="text-black dark:text-white">
+                <ThemedText>
                   {option.label}
                 </ThemedText>
               </TouchableOpacity>

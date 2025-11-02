@@ -10,7 +10,7 @@ import { storageService } from '../utils/storage';
  */
 
 // Configuration
-const API_BASE_URL = 'http://192.168.15.12:3000'; // Replace with your actual API URL
+const API_BASE_URL = 'http://192.168.15.6:3000'; // Replace with your actual API URL
 const API_TIMEOUT = 10000; // 10 seconds
 
 // API Error types
@@ -40,6 +40,128 @@ class ApiService {
     });
 
     this.setupInterceptors();
+  }
+
+  // Refresh token flow control
+  private isRefreshing: boolean = false;
+  private refreshPromise: Promise<void> | null = null;
+
+  private async storeTokens(token: string | null, refreshToken: string | null) {
+    try {
+      if (token) {
+        await storageService.setItem('auth-token', token);
+      } else {
+        await storageService.removeItem('auth-token');
+      }
+
+      // store token expiry (exp claim) so we can proactively refresh before it expires
+      if (token) {
+        const payload = this.decodeJWT(token);
+        const exp = payload?.exp; // exp is typically seconds since epoch
+        if (exp) {
+          // store as stringified number (seconds)
+          await storageService.setItem('auth-token-exp', String(exp));
+        } else {
+          await storageService.removeItem('auth-token-exp');
+        }
+      } else {
+        await storageService.removeItem('auth-token-exp');
+      }
+
+      if (refreshToken) {
+        await storageService.setItem('refresh-token', refreshToken);
+      } else {
+        await storageService.removeItem('refresh-token');
+      }
+    } catch (err) {
+      console.error('Error storing tokens:', err);
+    }
+  }
+
+  // Margin in seconds before expiry to trigger a refresh
+  private TOKEN_REFRESH_MARGIN = 60;
+
+  // Shared refresh logic (uses concurrency controls defined on the class)
+  private async refreshTokens(currentRefresh: string): Promise<void> {
+    try {
+      const raw = axios.create({ baseURL: API_BASE_URL, timeout: API_TIMEOUT });
+      const resp = await raw.post('/auth/refresh', { refreshToken: currentRefresh });
+
+      const newToken = resp.data?.token;
+      const newRefresh = resp.data?.refreshToken;
+
+      if (!newToken) {
+        throw new Error('No token returned from refresh');
+      }
+
+      await this.storeTokens(newToken, newRefresh || null);
+
+      this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    } catch (refreshError) {
+      await this.storeTokens(null, null);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth:logout'));
+      }
+      throw refreshError;
+    }
+  }
+
+  // Ensure the token is fresh before sending a request. If the token is near expiry,
+  // attempt to refresh using the stored refresh token.
+  private async ensureFreshToken(): Promise<void> {
+    try {
+      const token = await storageService.getItem('auth-token');
+      if (!token) return;
+
+      const expStr = await storageService.getItem('auth-token-exp');
+      let exp: number | null = null;
+
+      if (expStr) {
+        const parsed = parseInt(expStr, 10);
+        if (!Number.isNaN(parsed)) exp = parsed;
+      } else {
+        // fallback: decode token and store exp for next time
+        const payload = this.decodeJWT(token);
+        if (payload?.exp) {
+          exp = payload.exp;
+          await storageService.setItem('auth-token-exp', String(exp));
+        }
+      }
+
+      if (!exp) return;
+
+      const nowSec = Math.floor(Date.now() / 1000);
+      // If token is already expired or will expire within the margin, refresh
+      if (nowSec >= exp - this.TOKEN_REFRESH_MARGIN) {
+        const currentRefresh = await storageService.getItem('refresh-token');
+        if (!currentRefresh) {
+          await this.storeTokens(null, null);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('auth:logout'));
+          }
+          return;
+        }
+
+        if (this.isRefreshing && this.refreshPromise) {
+          await this.refreshPromise;
+        } else {
+          this.isRefreshing = true;
+          this.refreshPromise = (async () => {
+            try {
+              await this.refreshTokens(currentRefresh);
+            } finally {
+              this.isRefreshing = false;
+              this.refreshPromise = null;
+            }
+          })();
+
+          await this.refreshPromise;
+        }
+      }
+    } catch (err) {
+      // If refresh fails here, let the request proceed; response interceptor will handle 401
+      console.warn('ensureFreshToken failed:', err);
+    }
   }
 
   private decodeJWT(token: string): any {
@@ -75,12 +197,15 @@ class ApiService {
     this.axiosInstance.interceptors.request.use(
       async (config) => {
         try {
+          // Ensure token is fresh (refresh proactively if it's near expiry)
+          await this.ensureFreshToken();
+
           const token = await storageService.getItem('auth-token');
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
           }
         } catch (error) {
-          console.error('Error getting auth token:', error);
+          console.error('Error ensuring auth token is fresh or getting auth token:', error);
         }
         return config;
       },
@@ -91,12 +216,64 @@ class ApiService {
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       async (error) => {
-        if (error.response?.status === 401) {
-          // Token expired or invalid, clear stored data and trigger logout
-          await storageService.removeItem('auth-token');
-          // Trigger global logout by dispatching custom event
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('auth:logout'));
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest?._retry) {
+          originalRequest._retry = true;
+
+          try {
+            const currentRefresh = await storageService.getItem('refresh-token');
+
+            if (!currentRefresh) {
+              await this.storeTokens(null, null);
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('auth:logout'));
+              }
+              return Promise.reject(error);
+            }
+
+            if (this.isRefreshing && this.refreshPromise) {
+              await this.refreshPromise;
+            } else {
+              this.isRefreshing = true;
+              this.refreshPromise = (async () => {
+                try {
+                  const raw = axios.create({ baseURL: API_BASE_URL, timeout: API_TIMEOUT });
+                  const resp = await raw.post('/auth/refresh', { refreshToken: currentRefresh });
+
+                  const newToken = resp.data?.token;
+                  const newRefresh = resp.data?.refreshToken;
+
+                  if (!newToken) {
+                    throw new Error('No token returned from refresh');
+                  }
+
+                  await this.storeTokens(newToken, newRefresh || null);
+
+                  this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+                } catch (refreshError) {
+                  await this.storeTokens(null, null);
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('auth:logout'));
+                  }
+                  throw refreshError;
+                } finally {
+                  this.isRefreshing = false;
+                  this.refreshPromise = null;
+                }
+              })();
+
+              await this.refreshPromise;
+            }
+
+            const latestToken = await storageService.getItem('auth-token');
+            if (latestToken) {
+              originalRequest.headers = originalRequest.headers || {};
+              originalRequest.headers.Authorization = `Bearer ${latestToken}`;
+              return this.axiosInstance(originalRequest);
+            }
+          } catch (refreshErr) {
+            return Promise.reject(refreshErr);
           }
         } else if (error.response?.status === 403) {
           // Forbidden - user doesn't have permission
@@ -112,7 +289,7 @@ class ApiService {
 
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      const response: AxiosResponse<{ token: string }> = await this.axiosInstance.post('/auth/login', {
+      const response: AxiosResponse<{ token: string; refreshToken?: string }> = await this.axiosInstance.post('/auth/login', {
         email,
         password,
       });
@@ -123,11 +300,13 @@ class ApiService {
         throw new Error('Invalid token received');
       }
 
-      // Store the token securely
-      await storageService.setItem('auth-token', response.data.token);
+  const token = response.data.token;
+  const refreshToken = response.data.refreshToken || null;
+  await this.storeTokens(token, refreshToken);
 
       return {
-        token: response.data.token,
+        token,
+        refreshToken: response.data.refreshToken,
         user,
       };
     } catch (error) {
@@ -158,13 +337,12 @@ class ApiService {
 
   async logout(): Promise<void> {
     try {
-      await this.axiosInstance.post('/auth/logout');
+      // await this.axiosInstance.post('/auth/logout');
     } catch (error) {
       console.error('Logout API call failed:', error);
       // Still proceed with local cleanup even if API call fails
     } finally {
-      // Always clear local token regardless of API call success
-      await storageService.removeItem('auth-token');
+      await this.storeTokens(null, null);
     }
   }
 
@@ -315,8 +493,58 @@ class ApiService {
     return this.get<Submission[]>('/patient/submissions/history');
   }
 
-  async submitExercise(exerciseId: string, mediaUrl?: string): Promise<Submission> {
-    return this.post<Submission>('/patient/submissions', { exerciseId, mediaUrl });
+  async submitExercise(
+    exerciseId: string,
+    videoFile: any,
+    patientComments?: string
+  ): Promise<{ message: string; submission: Submission }> {
+    try {
+      if (!exerciseId) {
+        throw new Error('exerciseId is required');
+      }
+
+      if (!videoFile) {
+        // Let API handle this as 400, but throw a clear error here too
+        const err: any = new Error('videoFile is required');
+        err.response = { status: 400, data: { message: 'videoFile is required' } };
+        throw err;
+      }
+
+      const formData = new FormData();
+      formData.append('exerciseId', exerciseId);
+
+      if (typeof patientComments === 'string') {
+        formData.append('patientComments', patientComments);
+      }
+      
+      // For React Native, we need to append the blob with a filename
+      // The FormData will properly encode the blob for multipart upload
+      formData.append('videoFile', videoFile);
+
+      const response = await fetch(`${API_BASE_URL}/patient/submissions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${await this.getAuthToken() || ''}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const error: any = new Error(errorData.message || 'Failed to submit exercise');
+        error.response = { status: response.status, data: errorData };
+        throw error;
+      }
+
+      const responseData = await response.json();
+
+      console.log('Exercise submitted successfully');
+      return responseData;
+    } catch (error) {
+      console.error('submitExercise error:', error);
+      throw this.handleApiError(error);
+    }
   }
 
   // ===== PHYSIO API METHODS =====

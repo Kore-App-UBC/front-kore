@@ -1,3 +1,4 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList } from 'react-native';
 import { ThemedText } from '../components/themed-text';
@@ -19,7 +20,7 @@ export default function HistoryScreen() {
       setLoading(true);
       setError(null);
       const data = await apiService.get<Submission[]>('/patient/submissions/history');
-      setSubmissions(data);
+      setSubmissions(data.reverse());
     } catch (err) {
       setError('Failed to load submission history. Please try again.');
       console.error('Error fetching submission history:', err);
@@ -39,19 +40,26 @@ export default function HistoryScreen() {
   };
 
   const renderSubmission = ({ item }: { item: Submission }) => (
-    <ThemedView className="p-4 m-2 rounded-lg border border-gray-200">
-      <ThemedView className="flex-row justify-between items-start mb-2">
+    <ThemedView
+      className={`p-4 m-2 rounded-lg border border-gray-200`}
+      variant='surfaceStrong'
+    >
+      <ThemedView className="flex-row justify-between items-center mb-2 gap-7 !bg-transparent">
         <ThemedText type="subtitle" className="flex-1">Exercise Submission</ThemedText>
-        <ThemedText className="text-sm text-gray-600">{formatDate(item.submittedAt)}</ThemedText>
+        <ThemedView className="flex-row items-center gap-2 p-3 rounded-md">
+          {item.status === 'PROCESSED' && (
+            <ThemedView className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-100">
+              <MaterialIcons name="access-time" size={20} color="#c2410c" />
+            </ThemedView>
+          )}
+          <ThemedText className="text-sm text-gray-600">{formatDate(new Date(item.createdAt))}</ThemedText>
+        </ThemedView>
       </ThemedView>
       <ThemedText className="text-sm text-gray-600 mb-1">Exercise ID: {item.exerciseId}</ThemedText>
-      {item.score !== undefined && (
-        <ThemedText className="text-sm text-green-600 mb-1">Score: {item.score}/100</ThemedText>
-      )}
-      {item.feedback && (
-        <ThemedView className="mt-2">
-          <ThemedText type="defaultSemiBold" className="mb-1">Feedback:</ThemedText>
-          <ThemedText className="text-sm">{item.feedback}</ThemedText>
+      {item.report?.physioFeedback && (
+        <ThemedView className="mt-2 p-3 rounded-md">
+          <ThemedText type="defaultSemiBold" className="mb-1">Physio Feedback:</ThemedText>
+          <ThemedText className="text-sm">{item.report.physioFeedback}</ThemedText>
         </ThemedView>
       )}
     </ThemedView>
@@ -93,7 +101,7 @@ export default function HistoryScreen() {
           data={submissions}
           renderItem={renderSubmission}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 128 }}
         />
       )}
     </ThemedView>

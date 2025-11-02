@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { apiService } from '../services/api';
 import { useAuthStore } from '../state/authStore';
+import { addListener, removeListener } from '../utils/eventBus';
 import { storageService } from '../utils/storage';
 
 export const useAuth = () => {
@@ -11,6 +13,11 @@ export const useAuth = () => {
 
     try {
       const response = await apiService.login(email, password);
+      
+      if (response.refreshToken) {
+        await storageService.setItem('refresh-token', response.refreshToken);
+      }
+
       await storageService.setItem('auth-token', response.token);
       login(response.user);
 
@@ -33,6 +40,7 @@ export const useAuth = () => {
       console.error('Logout API call failed:', error);
     } finally {
       await storageService.removeItem('auth-token');
+      await storageService.removeItem('refresh-token');
       logout();
       setLoading(false);
     }
@@ -53,6 +61,19 @@ export const useAuth = () => {
       console.error('Error initializing auth:', error);
     }
   };
+
+  useEffect(() => {
+    const handler = async () => {
+      await storageService.removeItem('auth-token');
+      await storageService.removeItem('refresh-token');
+      logout();
+    };
+
+    // Use the cross-platform event bus so both web and React Native can
+    // trigger a global 'auth:logout' without depending on window APIs.
+    addListener('auth:logout', handler);
+    return () => removeListener('auth:logout', handler);
+  }, []);
 
   return {
     user,

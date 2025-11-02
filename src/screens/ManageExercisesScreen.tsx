@@ -5,7 +5,7 @@ import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
 import { CreateExerciseData, Exercise, UpdateExerciseData } from '../types';
-import { getAlertState, registerAlertSetter, showAlert } from '../utils/alert';
+import { getAlertState, hideAlert, registerAlertSetter, showAlert } from '../utils/alert';
 
 type FormData = CreateExerciseData | UpdateExerciseData;
 
@@ -34,7 +34,8 @@ export default function ManageExercisesScreen() {
     },
     animationData: {
       basePoints: {},
-      animation: '',
+      keyframes: [],
+      animationType: 'oscillating',
     },
   });
 
@@ -49,7 +50,8 @@ export default function ManageExercisesScreen() {
     },
     animationData: {
       basePoints: {},
-      animation: '',
+      keyframes: [],
+      animationType: 'oscillating',
     },
   });
 
@@ -102,7 +104,8 @@ export default function ManageExercisesScreen() {
       },
       animationData: {
         basePoints: {},
-        animation: '',
+        keyframes: [],
+        animationType: 'oscillating',
       },
     });
     setUpdateForm({
@@ -116,7 +119,8 @@ export default function ManageExercisesScreen() {
       },
       animationData: {
         basePoints: {},
-        animation: '',
+        keyframes: [],
+        animationType: 'oscillating',
       },
     });
   };
@@ -189,31 +193,34 @@ export default function ManageExercisesScreen() {
 
     return (
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <ThemedView className="flex-1 justify-center items-center bg-black bg-opacity-50">
-          <ScrollView className="w-11/12 max-w-md max-h-4/5">
-            <ThemedView className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+        <ThemedView className="flex flex-col flex-1 justify-center items-center bg-black bg-opacity-50" variant='surface'>
+          <ScrollView className="!max-w-1/2 max-h-4/5 pt-10">
+            <ThemedView variant="background" className="p-6 rounded-3xl w-full">
               <ThemedText type="subtitle" className="mb-4">
                 {isCreate ? 'Create New Exercise' : 'Update Exercise'}
               </ThemedText>
 
               <TextInput
-                className="border border-gray-300 dark:border-gray-600 rounded p-3 mb-3 text-black dark:text-white"
+                className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
                 placeholder="Exercise Name"
+                placeholderTextColor="#7A86A8"
                 value={form.name}
                 onChangeText={(text) => setForm((prev: FormData) => ({ ...prev, name: text }))}
               />
 
               <TextInput
-                className="border border-gray-300 dark:border-gray-600 rounded p-3 mb-3 text-black dark:text-white"
+                className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
                 placeholder="Description"
+                placeholderTextColor="#7A86A8"
                 value={form.description}
                 onChangeText={(text) => setForm((prev: FormData) => ({ ...prev, description: text }))}
                 multiline
               />
 
               <TextInput
-                className="border border-gray-300 dark:border-gray-600 rounded p-3 mb-3 text-black dark:text-white"
+                className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
                 placeholder="Instructions URL"
+                placeholderTextColor="#7A86A8"
                 value={form.instructionsUrl}
                 onChangeText={(text) => setForm((prev: FormData) => ({ ...prev, instructionsUrl: text }))}
                 keyboardType="url"
@@ -222,11 +229,12 @@ export default function ManageExercisesScreen() {
               <ThemedText className="mb-2 font-semibold">Classification Data (Optional)</ThemedText>
 
               <ThemedView className="mb-3">
-                <ThemedText className="mb-1 text-sm">Thresholds</ThemedText>
-                <ThemedView className="flex-row space-x-2">
+                <ThemedText className="mb-1 text-sm text-muted">Thresholds</ThemedText>
+                <ThemedView className="flex-row gap-3">
                   <TextInput
-                    className="border border-gray-300 dark:border-gray-600 rounded p-2 flex-1 text-black dark:text-white"
+                    className="rounded-2xl border border-outline px-3 py-3 flex-1 text-white bg-surface"
                     placeholder="Up"
+                    placeholderTextColor="#7A86A8"
                     value={form.classificationData?.thresholds.up?.toString() || ''}
                     onChangeText={(text) => setForm((prev: FormData) => ({
                       ...prev,
@@ -242,8 +250,9 @@ export default function ManageExercisesScreen() {
                     keyboardType="numeric"
                   />
                   <TextInput
-                    className="border border-gray-300 dark:border-gray-600 rounded p-2 flex-1 text-black dark:text-white"
+                    className="rounded-2xl border border-outline px-3 py-3 flex-1 text-white bg-surface"
                     placeholder="Down"
+                    placeholderTextColor="#7A86A8"
                     value={form.classificationData?.thresholds.down?.toString() || ''}
                     onChangeText={(text) => setForm((prev: FormData) => ({
                       ...prev,
@@ -262,8 +271,9 @@ export default function ManageExercisesScreen() {
               </ThemedView>
 
               <TextInput
-                className="border border-gray-300 dark:border-gray-600 rounded p-3 mb-3 text-black dark:text-white"
+                className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
                 placeholder="Landmarks (comma-separated)"
+                placeholderTextColor="#7A86A8"
                 value={form.classificationData?.landmarks?.join(', ') || ''}
                 onChangeText={(text) => setForm((prev: FormData) => ({
                   ...prev,
@@ -276,8 +286,9 @@ export default function ManageExercisesScreen() {
               />
 
               <TextInput
-                className="border border-gray-300 dark:border-gray-600 rounded p-3 mb-3 text-black dark:text-white"
+                className="rounded-2xl border border-outline px-4 py-3 mb-3 text-white bg-surface"
                 placeholder="Evaluation Type (high_to_low, low_to_high, custom)"
+                placeholderTextColor="#7A86A8"
                 value={form.classificationData?.evaluationType || ''}
                 onChangeText={(text) => setForm((prev: FormData) => ({
                   ...prev,
@@ -292,27 +303,29 @@ export default function ManageExercisesScreen() {
               <ThemedText className="mb-2 font-semibold">Animation Data (Optional)</ThemedText>
 
               <TextInput
-                className="border border-gray-300 dark:border-gray-600 rounded p-3 mb-3 text-black dark:text-white"
+                className="rounded-2xl border border-outline px-4 py-3 mb-4 text-white bg-surface"
                 placeholder="Animation Type"
-                value={form.animationData?.animation || ''}
+                placeholderTextColor="#7A86A8"
+                value={form.animationData?.animationType || ''}
                 onChangeText={(text) => setForm((prev: FormData) => ({
                   ...prev,
                   animationData: {
                     basePoints: prev.animationData?.basePoints || {},
-                    animation: text
+                    keyframes: prev.animationData?.keyframes || [],
+                    animationType: text as 'oscillating' | 'loop' | undefined,
                   }
                 }))}
               />
 
-              <ThemedView className="flex-row justify-between z-[-1]">
+              <ThemedView className="flex-row justify-between gap-3 mt-4">
                 <TouchableOpacity
-                  className="bg-gray-300 dark:bg-gray-600 px-4 py-2 rounded"
+                  className="px-4 py-3 rounded-2xl border border-outline bg-surface"
                   onPress={closeModal}
                 >
                   <ThemedText>Cancel</ThemedText>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="bg-blue-500 px-4 py-2 rounded"
+                  className="bg-accent px-4 py-3 rounded-2xl"
                   onPress={isCreate ? handleCreateExercise : handleUpdateExercise}
                   disabled={loading}
                 >
@@ -333,12 +346,12 @@ export default function ManageExercisesScreen() {
   };
 
   return (
-    <ScrollView className="flex-1">
-      <ThemedView className="p-6">
+    <ScrollView className="flex-1 pb-32">
+      <ThemedView variant="transparent" className="p-6">
         <ThemedText type="title" className="mb-6">Manage Exercises</ThemedText>
 
         <TouchableOpacity
-          className="bg-blue-500 p-4 rounded-lg mb-6"
+          className="bg-accent p-4 rounded-3xl mb-6"
           onPress={() => openModal('create')}
         >
           <ThemedText className="text-white text-center font-bold">Create New Exercise</ThemedText>
@@ -347,18 +360,18 @@ export default function ManageExercisesScreen() {
         <ThemedText type="subtitle" className="mb-4">Exercises</ThemedText>
 
         {fetchLoading ? (
-          <ActivityIndicator size="large" color="#007bff" />
+          <ActivityIndicator size="large" color="#7F5AF0" />
         ) : exercises.length === 0 ? (
-          <ThemedText className="text-center text-gray-500">No exercises found</ThemedText>
+          <ThemedText className="text-center text-muted">No exercises found</ThemedText>
         ) : (
           exercises.map((exercise) => (
-            <ThemedView key={exercise.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-4 shadow">
+            <ThemedView key={exercise.id} variant="surface" className="p-5 rounded-3xl mb-4">
               <ThemedText type="defaultSemiBold" className="mb-2">{exercise.name}</ThemedText>
               <ThemedText className="mb-2">{exercise.description}</ThemedText>
-              <ThemedText className="mb-2 text-sm text-blue-600">{exercise.instructionsUrl}</ThemedText>
+              {/* <ThemedText className="mb-2 text-sm text-accent-soft">{exercise.instructionsUrl}</ThemedText> */}
 
               {exercise.classificationData && (
-                <ThemedView className="mb-2">
+                <ThemedView className="mb-2" variant='transparent'>
                   <ThemedText className="text-sm font-semibold">Classification:</ThemedText>
                   <ThemedText className="text-sm">Thresholds: {exercise.classificationData.thresholds.up}° / {exercise.classificationData.thresholds.down}°</ThemedText>
                   <ThemedText className="text-sm">Type: {exercise.classificationData.evaluationType}</ThemedText>
@@ -366,21 +379,21 @@ export default function ManageExercisesScreen() {
               )}
 
               {exercise.animationData && (
-                <ThemedView className="mb-2">
+                <ThemedView className="mb-2" variant='transparent'>
                   <ThemedText className="text-sm font-semibold">Animation:</ThemedText>
-                  <ThemedText className="text-sm">Type: {exercise.animationData.animation}</ThemedText>
+                  <ThemedText className="text-sm">Type: {exercise.animationData.animationType ?? 'N/A'}</ThemedText>
                 </ThemedView>
               )}
 
-              <ThemedView className="flex-row space-x-2">
+              <ThemedView className="flex-row space-x-2" variant='transparent'>
                 <TouchableOpacity
-                  className="bg-blue-500 px-3 py-2 rounded flex-1"
+                  className="bg-accent px-3 py-3 rounded-2xl flex-1"
                   onPress={() => openModal('update', exercise)}
                 >
                   <ThemedText className="text-white text-center text-sm">Edit</ThemedText>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="bg-red-500 px-3 py-2 rounded flex-1"
+                  className="bg-danger px-3 py-3 rounded-2xl flex-1"
                   onPress={() => handleDeleteExercise(exercise)}
                 >
                   <ThemedText className="text-white text-center text-sm">Delete</ThemedText>
@@ -397,7 +410,7 @@ export default function ManageExercisesScreen() {
           title={alertState.title}
           message={alertState.message}
           buttons={alertState.buttons}
-          onDismiss={() => setAlertState(prev => ({ ...prev, visible: false }))}
+          onDismiss={hideAlert}
         />
       </ThemedView>
     </ScrollView>

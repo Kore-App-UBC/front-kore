@@ -1,5 +1,4 @@
 import React from 'react';
-import { Alert } from 'react-native';
 
 interface AlertButton {
   text: string;
@@ -25,28 +24,23 @@ let setAlertState: React.Dispatch<React.SetStateAction<AlertState>> | null = nul
 
 export const registerAlertSetter = (setter: React.Dispatch<React.SetStateAction<AlertState>>) => {
   setAlertState = setter;
+  setter(alertState);
 };
 
 export const showAlert = (title: string, message?: string, buttons?: AlertButton[]) => {
-  if (setAlertState) {
-    alertState = {
-      visible: true,
-      title,
-      message,
-      buttons: buttons || [{ text: 'OK' }],
-    };
-    setAlertState(alertState);
-  } else {
-    // Fallback to native Alert if setter not registered
-    Alert.alert(title, message, buttons);
-  }
+  alertState = {
+    visible: true,
+    title,
+    message,
+    buttons: buttons || [{ text: 'OK' }],
+  };
+
+  setAlertState?.(alertState);
 };
 
 export const hideAlert = () => {
-  if (setAlertState) {
-    alertState = { ...alertState, visible: false };
-    setAlertState(alertState);
-  }
+  alertState = { ...alertState, visible: false };
+  setAlertState?.(alertState);
 };
 
 export const getAlertState = () => alertState;

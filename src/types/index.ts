@@ -35,19 +35,19 @@ export interface ClassificationData {
 
 export type Transformation = (
   | {
-      type: 'relative_translate';
-      joint: string;
-      offset: [number, number, number];
-      relativeTo: string;
-    }
+    type: 'relative_translate';
+    joint: string;
+    offset: [number, number, number];
+    relativeTo: string;
+  }
   | {
-      type: 'rotate_around_joint';
-      joint: string;
-      pivotJoint: string;
-      axis: 'x' | 'y' | 'z';
-      angle: number; // in degrees
-      distance: number;
-    }
+    type: 'rotate_around_joint';
+    joint: string;
+    pivotJoint: string;
+    axis: 'x' | 'y' | 'z';
+    angle: number; // in degrees
+    distance: number;
+  }
 );
 
 export interface Keyframe {
@@ -81,13 +81,27 @@ export interface UpdateExerciseData {
 }
 
 export interface Submission {
-  id: string;
-  exerciseId: string;
-  userId: string;
-  submittedAt: Date;
-  score?: number;
-  feedback?: string;
-  mediaUrl?: string;
+  id: string
+  patientId: string
+  exerciseId: string
+  videoUrl: string
+  patientComments?: string
+  status: string
+  submittedAt: string
+  createdAt: string
+  updatedAt: string
+  report: {
+    id: string
+    submissionId: string
+    iaAnalysis: {
+      accuracy: number
+      corrections: Array<string>
+    }
+    physioFeedback: string
+    finalizedAt: string
+    createdAt: string
+    updatedAt: string
+  }
 }
 
 export interface Session {
@@ -133,6 +147,7 @@ export interface SessionState {
 
 export interface AuthResponse {
   token: string;
+  refreshToken?: string;
   user: User;
 }
 
@@ -184,43 +199,213 @@ export interface Patient {
 }
 
 export interface SubmissionQueueItem {
-  id: string;
-  patientName: string;
-  exerciseName: string;
-  submittedAt: string;
-  status: 'pending' | 'reviewed';
+  id: string
+  patientId: string
+  exerciseId: string
+  videoUrl: string
+  patientComments: any
+  status: string
+  submittedAt: string
+  createdAt: string
+  updatedAt: string
+  report: {
+    id: string
+    submissionId: string
+    iaAnalysis: {
+      accuracy: number
+      corrections: Array<string>
+    }
+    physioFeedback: any
+    finalizedAt: any
+    createdAt: string
+    updatedAt: string
+  }
+  patient: {
+    id: string
+    userId: string
+    physiotherapistId: string
+    createdAt: string
+    updatedAt: string
+    user: {
+      id: string
+      name: string
+      email: string
+      password: string
+      role: string
+      clinicId: string
+      createdAt: string
+      updatedAt: string
+    }
+  }
+  exercise: {
+    id: string
+    name: string
+    description: string
+    instructionsUrl: string
+    classificationData: {
+      landmarks: Array<string>
+      thresholds: {
+        up: number
+        down: number
+      }
+      evaluationType: string
+    }
+    animationData: {
+      keyframes: Array<{
+        progress: number
+        transformations: Array<{
+          type: string
+          joint: string
+          offset?: Array<number>
+          relativeTo?: string
+          axis?: string
+          angle?: number
+          distance?: number
+          pivotJoint?: string
+        }>
+      }>
+      basePoints: {
+        head: Array<number>
+        neck: Array<number>
+        mid_hip: Array<number>
+        left_hip: Array<number>
+        left_knee: Array<number>
+        right_hip: Array<number>
+        left_ankle: Array<number>
+        left_elbow: Array<number>
+        left_wrist: Array<number>
+        right_knee: Array<number>
+        right_ankle: Array<number>
+        right_elbow: Array<number>
+        right_wrist: Array<number>
+        left_shoulder: Array<number>
+        right_shoulder: Array<number>
+      }
+      animationType: string
+    }
+    createdAt: string
+    updatedAt: string
+  }
 }
 
 export interface SubmissionDetail {
-  id: string;
-  exerciseId: string;
-  userId: string;
-  submittedAt: string;
-  score?: number;
-  feedback?: string;
-  mediaUrl: string;
-  exercise: {
-    name: string;
-    description: string;
-  };
+  id: string
+  patientId: string
+  exerciseId: string
+  videoUrl: string
+  patientComments: any
+  status: string
+  submittedAt: string
+  createdAt: string
+  updatedAt: string
+  report: {
+    id: string
+    submissionId: string
+    iaAnalysis: {
+      accuracy: number
+      corrections: Array<string>
+    }
+    physioFeedback: any
+    finalizedAt: any
+    createdAt: string
+    updatedAt: string
+  }
   patient: {
-    name: string;
-    email: string;
-  };
+    id: string
+    userId: string
+    physiotherapistId: string
+    createdAt: string
+    updatedAt: string
+    user: {
+      id: string
+      name: string
+      email: string
+      password: string
+      role: string
+      clinicId: string
+      createdAt: string
+      updatedAt: string
+    }
+  }
+  exercise: {
+    id: string
+    name: string
+    description: string
+    instructionsUrl: string
+    classificationData: {
+      landmarks: Array<string>
+      thresholds: {
+        up: number
+        down: number
+      }
+      evaluationType: string
+    }
+    animationData: {
+      keyframes: Array<{
+        progress: number
+        transformations: Array<{
+          type: string
+          joint: string
+          offset?: Array<number>
+          relativeTo?: string
+          axis?: string
+          angle?: number
+          distance?: number
+          pivotJoint?: string
+        }>
+      }>
+      basePoints: {
+        head: Array<number>
+        neck: Array<number>
+        mid_hip: Array<number>
+        left_hip: Array<number>
+        left_knee: Array<number>
+        right_hip: Array<number>
+        left_ankle: Array<number>
+        left_elbow: Array<number>
+        left_wrist: Array<number>
+        right_knee: Array<number>
+        right_ankle: Array<number>
+        right_elbow: Array<number>
+        right_wrist: Array<number>
+        left_shoulder: Array<number>
+        right_shoulder: Array<number>
+      }
+      animationType: string
+    }
+    createdAt: string
+    updatedAt: string
+  }
 }
 
 export interface FeedbackData {
-  score: number;
-  feedback: string;
+  physioFeedback: string;
 }
 
 // Manager-specific types
 export interface Metrics {
+  // Total counts
   totalPatients: number;
-  totalPhysios: number;
+  // Some APIs/clients may call this "totalPhysios" or "totalPhysiotherapists" - support both as optional
+  totalPhysios?: number;
+  totalPhysiotherapists?: number;
   totalExercises: number;
-  activeSessions: number;
-  completedSessions: number;
+
+  // Aggregations for prescriptions grouped by exercise (optional)
+  exercisesByPrescription?: Array<{
+    exerciseId: string;
+    exerciseName: string | null;
+    prescribedCount: number;
+  }>;
+
+  // Submission/session counts (field names differ between implementations)
+  // prefer the explicit names from the manager endpoint if present
+  activeSubmissionsNotReviewed?: number;
+  completeSessionsReviewed?: number;
+
+  // legacy/backwards-compatible fields
+  activeSessions?: number;
+  completedSessions?: number;
 }
 
 export interface CreatePatientData {
@@ -288,7 +473,7 @@ export interface PrescribedExercise {
   };
 }
 
-export interface PatientExercisesResponse extends Array<PrescribedExercise> {}
+export interface PatientExercisesResponse extends Array<PrescribedExercise> { }
 
 export interface PrescribeExerciseResponse {
   message: string;

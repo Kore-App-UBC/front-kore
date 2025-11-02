@@ -30,7 +30,7 @@ export default function ExercisesScreen() {
 
   const renderExercise = ({ item }: { item: any }) => (
     <TouchableOpacity onPress={() => router.push({ pathname: '/(patient)/exercise-detail', params: { exercise: JSON.stringify(item) } })}>
-      <ThemedView className="p-4 m-2 rounded-lg border border-gray-200">
+      <ThemedView className="p-4 m-2 rounded-lg border border-gray-200" variant='surfaceStrong'>
         <ThemedText type="subtitle" className="mb-2">{item.exercise.name}</ThemedText>
         <ThemedText className="mb-2">{item.exercise.description}</ThemedText>
         <ThemedText className="text-sm text-gray-600">Prescribed At: {new Date(item.prescribedAt).toLocaleDateString()}</ThemedText>
@@ -74,7 +74,7 @@ export default function ExercisesScreen() {
           data={exercises}
           renderItem={renderExercise}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 128 }}
         />
       )}
     </ThemedView>
