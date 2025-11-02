@@ -20,6 +20,7 @@ export default function ReviewRecordingPage() {
   const router = useRouter();
   const videoRef = useRef<Video | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [patientComments, setPatientComments] = useState<string>('');
   const { width: windowWidth } = Dimensions.get('window');
   const horizontalPadding = 16 * 2; // matches container padding left/right
@@ -42,6 +43,7 @@ export default function ReviewRecordingPage() {
     }
 
     setIsSending(true);
+    setUploadProgress(0);
 
     try {
       const videoFile = {
@@ -50,16 +52,29 @@ export default function ReviewRecordingPage() {
         type: 'video/mp4',
       };
 
-      const resp = await apiService.submitExercise(exerciseId as string, videoFile as any, patientComments || undefined);
+      const resp = await apiService.submitExercise(
+        exerciseId as string,
+        videoFile as any,
+        patientComments || undefined,
+        ({ loaded, total }) => {
+          const progress = total ? (loaded / total) * 100 : 0;
+          const capped = Math.min(100, Math.max(0, progress));
+          setUploadProgress(capped);
+        },
+        () => {
+          setUploadProgress(100);
+        }
+      );
 
-  showAlert('Enviado', resp?.message || 'Vídeo enviado com sucesso.');
-      router.back();
+      showAlert('Enviado', resp?.message || 'Vídeo enviado com sucesso.', [{ text: 'OK', onPress: () => router.back() }]);
     } catch (e: any) {
       console.error('Send failed', e);
       const message = e?.message || e?.responseData?.message || 'Falha ao enviar vídeo.';
       showAlert('Erro', message);
+      setUploadProgress(0);
     } finally {
       setIsSending(false);
+      setTimeout(() => setUploadProgress(0), 600);
     }
   };
 
@@ -89,6 +104,16 @@ export default function ReviewRecordingPage() {
                 isLooping={false}
                 resizeMode={ResizeMode.CONTAIN}
               />
+            </View>
+          )}
+
+          {/* Upload progress bar (visible while sending) */}
+          {(isSending || uploadProgress > 0) && (
+            <View style={styles.progressSection}>
+              <Text style={styles.progressText}>{Math.round(uploadProgress)}%</Text>
+              <View style={styles.progressContainer} accessibilityRole="progressbar" accessibilityValue={{ now: Math.round(uploadProgress), min: 0, max: 100 }}>
+                <View style={[styles.progressBar, { width: `${uploadProgress}%` }]} />
+              </View>
             </View>
           )}
 
@@ -180,6 +205,27 @@ const styles = StyleSheet.create({
   video: {
     width: '100%',
     height: '100%',
+  },
+  progressSection: {
+    width: '100%',
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  progressText: {
+    color: '#fff',
+    marginBottom: 6,
+    fontWeight: '600',
+  },
+  progressContainer: {
+    width: '100%',
+    height: 8,
+    backgroundColor: '#222',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#1e88e5',
   },
   actions: {
     flexDirection: 'row',

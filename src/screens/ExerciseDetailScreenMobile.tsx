@@ -51,7 +51,6 @@ export default function ExerciseDetailScreenMobile() {
   const [exerciseStage, setExerciseStage] = useState<string | null>(null);
   const exerciseStageRef = useRef<string | null>(null);
 
-  // Update ref whenever exerciseStage changes
   useEffect(() => {
     exerciseStageRef.current = exerciseStage;
   }, [exerciseStage]);
@@ -65,8 +64,6 @@ export default function ExerciseDetailScreenMobile() {
   };
 
   const poseDetectionProcessor = usePoseDetectionProcessor((detectedLandmarks) => {
-    // Always update landmarks for visualization, but only evaluate/count
-    // repetitions while actively recording.
     setLandmarks(detectedLandmarks);
     if (isRecording && detectedLandmarks.length > 0 && parsedExercise?.exercise.classificationData) {
       processExercise(detectedLandmarks, parsedExercise.exercise.classificationData);
@@ -75,16 +72,6 @@ export default function ExerciseDetailScreenMobile() {
 
   const router = useRouter();
   const hasNavigatedToReview = useRef(false);
-
-  const desiredFormat = useMemo(() => {
-    if (!device) return null;
-
-    const format = device.formats.find(format =>
-      format.minFps <= 10
-    );
-
-    return format || null;
-  }, [device]);
 
   const startRecording = async () => {
     if (!cameraRef.current) return;
@@ -97,7 +84,6 @@ export default function ExerciseDetailScreenMobile() {
         flash: 'off',
         fileType: 'mp4',
         path: `${RNFS.ExternalCachesDirectoryPath}/`,
-        // audio: false,
         onRecordingFinished: (video: any) => {
           setIsRecording(false);
           const uri = video?.path || video?.filePath || video?.uri || null;
@@ -125,14 +111,12 @@ export default function ExerciseDetailScreenMobile() {
     }
   };
 
-  // Auto-stop when target reps reached
   useEffect(() => {
     if (isRecording && repCount >= RECORD_TARGET) {
       stopRecording();
     }
   }, [repCount, isRecording]);
 
-  // Navigate to review screen once recording finished and target reached
   useEffect(() => {
     if (
       recordedFile &&
@@ -313,8 +297,6 @@ export default function ExerciseDetailScreenMobile() {
         isActive={cameraActive}
         frameProcessor={poseDetectionProcessor}
         resizeMode="contain"
-        format={desiredFormat || undefined}
-        fps={desiredFormat ? 10 : undefined}
         {...cameraComponentProps}
       />
       {containerSize && (

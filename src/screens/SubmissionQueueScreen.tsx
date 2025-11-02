@@ -28,7 +28,7 @@ export default function SubmissionQueueScreen() {
       const data = await apiService.getSubmissionQueue();
       setSubmissions(data);
     } catch (err) {
-      setError('Falha ao carregar submissões');
+      setError('Falha ao carregar envios');
       console.error(err);
     } finally {
       setLoading(false);
@@ -112,7 +112,7 @@ export default function SubmissionQueueScreen() {
   if (loading && !refreshing) {
     return (
       <ThemedView className="flex-1 justify-center items-center">
-  <ThemedText className="text-lg">Carregando submissões...</ThemedText>
+  <ThemedText className="text-lg">Carregando envios...</ThemedText>
       </ThemedView>
     );
   }
@@ -134,10 +134,10 @@ export default function SubmissionQueueScreen() {
   return (
     <ThemedView className="flex-1">
       <ScrollView className='flex flex-col items-center w-full pb-32'>
-  <ThemedText type="title" className="p-4">Fila de submissões</ThemedText>
+  <ThemedText type="title" className="p-4">Fila de envios</ThemedText>
         {submissions.length === 0 ? (
             <ThemedView className="flex-1 justify-center items-center">
-            <ThemedText className="text-lg">Nenhuma submissão para revisar</ThemedText>
+            <ThemedText className="text-lg">Nenhum envio para revisar</ThemedText>
           </ThemedView>
         ) : (
           <FlatList

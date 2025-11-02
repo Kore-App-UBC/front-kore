@@ -55,7 +55,7 @@ export default function ProfileScreen() {
         <ThemedView variant="surface" className="mt-6 p-5 rounded-3xl">
           <ThemedText className="text-lg font-semibold mb-2">Informação da Conta</ThemedText>
           <ThemedText className="text-muted text-sm">
-            Como fisioterapeuta, você pode gerenciar seus pacientes atribuídos, revisar submissões de exercícios
+            Como fisioterapeuta, você pode gerenciar seus pacientes atribuídos, revisar envios de exercícios
             e fornecer feedback para ajudar seus pacientes a progredirem na reabilitação.
           </ThemedText>
         </ThemedView>

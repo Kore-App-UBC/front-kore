@@ -1,6 +1,13 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { Platform } from 'react-native';
 import { AssignPhysioData, AuthResponse, AvailableExercise, CreateExerciseData, CreatePatientData, CreatePhysioData, Exercise, FeedbackData, Metrics, Patient, Physio, PhysioDropdownOption, PrescribedExercise, PrescribeExerciseData, PrescribeExerciseResponse, RemovePrescriptionResponse, Submission, SubmissionDetail, SubmissionQueueItem, UpdateExerciseData, UpdatePatientData, UpdatePhysioData, User } from '../types';
 import { storageService } from '../utils/storage';
+
+let RNFS: typeof import('react-native-fs') | null = null;
+
+if (Platform.OS !== 'web') {
+  RNFS = require('react-native-fs');
+}
 
 /**
  * Kore Physiotherapy App API Service
@@ -496,17 +503,19 @@ class ApiService {
   async submitExercise(
     exerciseId: string,
     videoFile: any,
-    patientComments?: string
-  ): Promise<{ message: string; submission: Submission }> {
+    patientComments?: string,
+    onUploadProgress?: (progressEvent: { loaded: number; total: number }) => void,
+    onUploadComplete?: () => void
+  ): Promise<{ message: string; submission: Submission, uploadUrl: string }> {
     try {
       if (!exerciseId) {
         throw new Error('exerciseId is required');
       }
 
       if (!videoFile) {
-        // Let API handle this as 400, but throw a clear error here too
         const err: any = new Error('videoFile is required');
         err.response = { status: 400, data: { message: 'videoFile is required' } };
+
         throw err;
       }
 
@@ -516,10 +525,6 @@ class ApiService {
       if (typeof patientComments === 'string') {
         formData.append('patientComments', patientComments);
       }
-      
-      // For React Native, we need to append the blob with a filename
-      // The FormData will properly encode the blob for multipart upload
-      formData.append('videoFile', videoFile);
 
       const response = await fetch(`${API_BASE_URL}/patient/submissions`, {
         method: 'POST',
@@ -537,9 +542,36 @@ class ApiService {
         throw error;
       }
 
-      const responseData = await response.json();
+      const responseData = await response.json() as { message: string; submission: Submission, uploadUrl: string };
 
-      console.log('Exercise submitted successfully');
+      await RNFS?.uploadFiles({
+        toUrl: responseData.uploadUrl,
+        files: [{
+          name: 'videoFile',
+          filename: videoFile.name,
+          filepath: videoFile.uri.replace('file://', ''),
+          filetype: videoFile.type,
+        }],
+        method: 'PUT',
+        binaryStreamOnly: true,
+        headers: {
+          'Content-Type': videoFile.type,
+        },
+        progressCallback(res) {
+          if (onUploadProgress) {
+            onUploadProgress({ loaded: res.totalBytesSent, total: res.totalBytesExpectedToSend });
+          }
+        },
+      }).promise.then((uploadResult) => {
+        if (uploadResult.statusCode >= 200 && uploadResult.statusCode < 300) {
+          if (onUploadComplete) {
+            onUploadComplete();
+          }
+        } else {
+          console.error('Upload failed with status code:', uploadResult.statusCode);
+        }
+      });
+
       return responseData;
     } catch (error) {
       console.error('submitExercise error:', error);
