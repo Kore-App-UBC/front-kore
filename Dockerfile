@@ -19,24 +19,9 @@ FROM nginx:stable-alpine AS runner
 COPY --from=builder /app/web-build /usr/share/nginx/html
 
 # SPA fallback and caching for static assets
-RUN rm /etc/nginx/conf.d/default.conf \
- && cat > /etc/nginx/conf.d/default.conf <<'NGINX_CONF'
-server {
-  listen 80;
-  server_name localhost;
-  root /usr/share/nginx/html;
-  index index.html;
-
-  location / {
-    try_files $uri $uri/ /index.html;
-  }
-
-  location /static/ {
-    expires 1y;
-    add_header Cache-Control "public, max-age=31536000, immutable";
-  }
-}
-NGINX_CONF
+# Use a static nginx config file instead of a heredoc so Dockerfile parser
+# doesn't see the nginx `server { ... }` block as a separate instruction.
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
