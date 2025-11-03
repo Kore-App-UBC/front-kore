@@ -17,7 +17,7 @@ if (Platform.OS !== 'web') {
  */
 
 // Configuration
-const API_BASE_URL = 'http://192.168.15.6:3000'; // Replace with your actual API URL
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL; // Replace with your actual API URL
 const API_TIMEOUT = 10000; // 10 seconds
 
 // API Error types
