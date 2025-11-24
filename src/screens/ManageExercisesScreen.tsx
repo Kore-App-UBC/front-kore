@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import AnimatedBackground from '../components/AnimatedBackground';
 import CustomAlert from '../components/CustomAlert';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
@@ -346,9 +347,10 @@ export default function ManageExercisesScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 pb-32">
-      <ThemedView variant="transparent" className="p-6">
-  <ThemedText type="title" className="mb-6">Gerenciar exercícios</ThemedText>
+    <AnimatedBackground>
+      <ScrollView className="flex-1 pb-32">
+        <ThemedView variant="transparent" className="p-6 !bg-transparent">
+          <ThemedText type="title" className="mb-6">Gerenciar exercícios</ThemedText>
 
         <TouchableOpacity
           className="bg-accent p-4 rounded-3xl mb-6"
@@ -357,7 +359,7 @@ export default function ManageExercisesScreen() {
           <ThemedText className="text-white text-center font-bold">Criar novo exercício</ThemedText>
         </TouchableOpacity>
 
-  <ThemedText type="subtitle" className="mb-4">Exercícios</ThemedText>
+      <ThemedText type="subtitle" className="mb-4">Exercícios</ThemedText>
 
         {fetchLoading ? (
           <ActivityIndicator size="large" color="#7F5AF0" />
@@ -413,6 +415,7 @@ export default function ManageExercisesScreen() {
           onDismiss={hideAlert}
         />
       </ThemedView>
-    </ScrollView>
+      </ScrollView>
+    </AnimatedBackground>
   );
 }

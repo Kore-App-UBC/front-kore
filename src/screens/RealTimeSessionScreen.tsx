@@ -2,6 +2,7 @@ import { FilesetResolver, NormalizedLandmark, PoseLandmarker } from '@mediapipe/
 import { Camera, CameraView } from 'expo-camera';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import AnimatedBackground from '../components/AnimatedBackground';
 import CustomAlert from '../components/CustomAlert';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
@@ -161,16 +162,16 @@ export default function RealTimeSessionScreen() {
     showAlert('Sessão encerrada', 'Sessão concluída. Os resultados serão processados.');
   };
 
+  let content;
+
   if (hasPermission === null) {
-    return (
+    content = (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center">
         <ThemedText>Solicitando permissão da câmera...</ThemedText>
       </ThemedView>
     );
-  }
-
-  if (hasPermission === false) {
-    return (
+  } else if (hasPermission === false) {
+    content = (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center p-4">
         <ThemedText className="text-danger text-center mb-4">
           O acesso à câmera é necessário para sessões de exercício em tempo real.
@@ -183,38 +184,8 @@ export default function RealTimeSessionScreen() {
         </TouchableOpacity>
       </ThemedView>
     );
-  }
-
-  const PoseOverlay = () => {
-    if (!poseLandmarks || poseLandmarks.length === 0) return null;
-
-    const { width, height } = Dimensions.get('window');
-    const landmarks = poseLandmarks[0];
-
-    return (
-      <View style={StyleSheet.absoluteFill}>
-        {landmarks.map((landmark, index) => (
-          <View
-            key={index}
-            style={{
-              position: 'absolute',
-              left: landmark.x * width,
-              top: landmark.y * height,
-              width: 8,
-              height: 8,
-              borderRadius: 4,
-              backgroundColor: '#7F5AF0',
-              borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.6)',
-            }}
-          />
-        ))}
-      </View>
-    );
-  };
-
-  return (
-    <>
+  } else {
+    content = (
       <ThemedView variant="transparent" className="flex-1">
         <ThemedText type="title" className="p-4 text-center">Real-Time Session</ThemedText>
 
@@ -278,6 +249,42 @@ export default function RealTimeSessionScreen() {
           </ThemedView>
         </ThemedView>
       </ThemedView>
+    );
+  }
+
+  const PoseOverlay = () => {
+    if (!poseLandmarks || poseLandmarks.length === 0) return null;
+
+    const { width, height } = Dimensions.get('window');
+    const landmarks = poseLandmarks[0];
+
+    return (
+      <View style={StyleSheet.absoluteFill}>
+        {landmarks.map((landmark, index) => (
+          <View
+            key={index}
+            style={{
+              position: 'absolute',
+              left: landmark.x * width,
+              top: landmark.y * height,
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: '#7F5AF0',
+              borderWidth: 1,
+              borderColor: 'rgba(255,255,255,0.6)',
+            }}
+          />
+        ))}
+      </View>
+    );
+  };
+
+  return (
+    <>
+      <AnimatedBackground>
+        {content}
+      </AnimatedBackground>
 
       <CustomAlert
         visible={alertState.visible}

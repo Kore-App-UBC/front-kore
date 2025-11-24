@@ -1,6 +1,7 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList } from 'react-native';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
@@ -66,31 +67,7 @@ export default function HistoryScreen() {
     </ThemedView>
   );
 
-  if (loading) {
-    return (
-      <ThemedView className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-        <ThemedText className="mt-4">Carregando histórico de envios...</ThemedText>
-      </ThemedView>
-    );
-  }
-
-  if (error) {
-    return (
-      <ThemedView className="flex-1 justify-center items-center p-4">
-        <ThemedText className="text-red-500 text-center mb-4">{error}</ThemedText>
-        <ThemedText
-          type="link"
-          onPress={fetchSubmissionHistory}
-          className="text-blue-500 underline"
-        >
-          Tentar novamente
-        </ThemedText>
-      </ThemedView>
-    );
-  }
-
-  return (
+  let content = (
     <ThemedView className="flex-1">
       <ThemedText type="title" className="p-4 text-center">Histórico de envios</ThemedText>
       {submissions.length === 0 ? (
@@ -106,5 +83,33 @@ export default function HistoryScreen() {
         />
       )}
     </ThemedView>
+  );
+
+  if (loading) {
+    content = (
+      <ThemedView className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+        <ThemedText className="mt-4">Carregando histórico de envios...</ThemedText>
+      </ThemedView>
+    );
+  } else if (error) {
+    content = (
+      <ThemedView className="flex-1 justify-center items-center p-4">
+        <ThemedText className="text-red-500 text-center mb-4">{error}</ThemedText>
+        <ThemedText
+          type="link"
+          onPress={fetchSubmissionHistory}
+          className="text-blue-500 underline"
+        >
+          Tentar novamente
+        </ThemedText>
+      </ThemedView>
+    );
+  }
+
+  return (
+    <AnimatedBackground>
+      {content}
+    </AnimatedBackground>
   );
 }

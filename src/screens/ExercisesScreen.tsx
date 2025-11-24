@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
@@ -38,31 +39,7 @@ export default function ExercisesScreen() {
     </TouchableOpacity>
   );
 
-  if (loading) {
-    return (
-      <ThemedView className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-        <ThemedText className="mt-4">Carregando exercícios...</ThemedText>
-      </ThemedView>
-    );
-  }
-
-  if (error) {
-    return (
-      <ThemedView className="flex-1 justify-center items-center p-4">
-        <ThemedText className="text-red-500 text-center mb-4">{error}</ThemedText>
-        <ThemedText
-          type="link"
-          onPress={fetchExercises}
-          className="text-blue-500 underline"
-        >
-          Tentar novamente
-        </ThemedText>
-      </ThemedView>
-    );
-  }
-
-  return (
+  let content = (
     <ThemedView className="flex-1">
       <ThemedText type="title" className="p-4 text-center">Meus exercícios</ThemedText>
       {exercises.length === 0 ? (
@@ -78,5 +55,33 @@ export default function ExercisesScreen() {
         />
       )}
     </ThemedView>
+  );
+
+  if (loading) {
+    content = (
+      <ThemedView className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+        <ThemedText className="mt-4">Carregando exercícios...</ThemedText>
+      </ThemedView>
+    );
+  } else if (error) {
+    content = (
+      <ThemedView className="flex-1 justify-center items-center p-4">
+        <ThemedText className="text-red-500 text-center mb-4">{error}</ThemedText>
+        <ThemedText
+          type="link"
+          onPress={fetchExercises}
+          className="text-blue-500 underline"
+        >
+          Tentar novamente
+        </ThemedText>
+      </ThemedView>
+    );
+  }
+
+  return (
+    <AnimatedBackground>
+      {content}
+    </AnimatedBackground>
   );
 }

@@ -2,6 +2,7 @@ import { ResizeMode, Video } from 'expo-av';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import AnimatedBackground from '../components/AnimatedBackground';
 import CustomAlert from '../components/CustomAlert';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
@@ -81,16 +82,16 @@ export default function SubmissionDetailScreen() {
     }
   };
 
+  let content;
+
   if (loading) {
-    return (
+    content = (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center">
         <ThemedText className="text-lg">Carregando...</ThemedText>
       </ThemedView>
     );
-  }
-
-  if (error || !submission) {
-    return (
+  } else if (error || !submission) {
+    content = (
       <ThemedView variant="transparent" className="flex-1 justify-center items-center">
         <ThemedText className="text-lg text-danger">{error || 'Detalhes do envio não encontrados'}</ThemedText>
         <TouchableOpacity
@@ -101,10 +102,8 @@ export default function SubmissionDetailScreen() {
         </TouchableOpacity>
       </ThemedView>
     );
-  }
-
-  return (
-    <ThemedView variant="transparent">
+  } else {
+    content = (
       <ScrollView className='w-full flex flex-col items-center pb-32'>
         <ThemedView variant="transparent" className="p-6 max-w-[800px] w-full">
           <ThemedText className="text-2xl font-bold mb-4" type='title'>Detalhes do envio</ThemedText>
@@ -118,6 +117,13 @@ export default function SubmissionDetailScreen() {
             <ThemedText className="text-lg font-semibold">Exercício: {submission.exercise.name}</ThemedText>
             <ThemedText className="text-muted">{submission.exercise.description}</ThemedText>
           </ThemedView>
+
+          {submission?.patientComments && (
+            <ThemedView variant="surfaceStrong" className="mb-4 p-5 rounded-3xl">
+              <ThemedText className="text-lg font-semibold">Comentário do paciente</ThemedText>
+              <ThemedText className="text-muted italic !bg-gray-900 rounded-2xl p-3 mt-3">{submission.patientComments}</ThemedText>
+            </ThemedView>
+          )}
 
           <ThemedView variant="surfaceStrong" className="mb-4 p-5 rounded-3xl">
             <ThemedText className="text-muted">Enviado: {new Date(submission.submittedAt).toLocaleString()}</ThemedText>
@@ -191,6 +197,12 @@ export default function SubmissionDetailScreen() {
           </ThemedView>
         </ThemedView>
       </ScrollView>
+    );
+  }
+
+  return (
+    <AnimatedBackground>
+      {content}
       {alertState && (
         <CustomAlert
           visible
@@ -200,6 +212,6 @@ export default function SubmissionDetailScreen() {
           onDismiss={() => setAlertState(null)}
         />
       )}
-    </ThemedView>
+    </AnimatedBackground>
   );
 }

@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import RNFS from 'react-native-fs';
 import { Camera, useCameraDevice, useCameraPermission } from "react-native-vision-camera";
+import AnimatedBackground from '../components/AnimatedBackground';
 import ExerciseAnimationPreview from '../components/ExerciseAnimationPreview';
 import { PrescribedExercise } from '../types';
 import { cameraComponentProps, MediapipePoint, usePoseDetectionProcessor } from '../utils/poseDetection';
@@ -285,62 +286,81 @@ export default function ExerciseDetailScreenMobile() {
     return lines;
   };
 
-  if (!hasPermission) return <Text className='text-white'>Sem permissão</Text>;
-  if (device == null) return <Text className='text-white'>Sem câmera</Text>;
+  let content;
+
+  if (!hasPermission) {
+    content = (
+      <View className="flex-1 justify-center items-center">
+        <Text className='text-white'>Sem permissão</Text>
+      </View>
+    );
+  } else if (device == null) {
+    content = (
+      <View className="flex-1 justify-center items-center">
+        <Text className='text-white'>Sem câmera</Text>
+      </View>
+    );
+  } else {
+    content = (
+      <View style={StyleSheet.absoluteFill} onLayout={onLayout}>
+        <Camera
+          ref={cameraRef}
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={cameraActive}
+          frameProcessor={poseDetectionProcessor}
+          resizeMode="contain"
+          {...cameraComponentProps}
+        />
+        {containerSize && (
+          <Canvas style={StyleSheet.absoluteFill}>
+            {drawSkeleton()}
+          </Canvas>
+        )}
+        {/* Animation overlay in top-right */}
+        <View style={styles.animationContainer}>
+          <ExerciseAnimationPreview
+            animationData={parsedExercise?.exercise.animationData}
+            width={150}
+            height={150}
+          />
+        </View>
+        {/* Recording controls - top-right below animation */}
+        <View style={styles.recordControlContainer}>
+            <Pressable
+            style={styles.flipButton}
+            onPress={() => setCameraPosition(prev => prev === 'front' ? 'back' : 'front')}
+            accessibilityLabel="Trocar câmera"
+          >
+            <MaterialIcons name="flip-camera-android" size={22} color="white" />
+          </Pressable>
+          {!isRecording ? (
+            <Pressable style={styles.recordButton} onPress={startRecording} accessibilityLabel="Iniciar gravação">
+              <MaterialIcons name="fiber-manual-record" size={20} color="white" />
+            </Pressable>
+          ) : (
+            <Pressable style={[styles.recordButton, styles.recording]} onPress={stopRecording} accessibilityLabel="Parar gravação">
+              <MaterialIcons name="stop" size={20} color="white" />
+            </Pressable>
+          )}
+          {isRecording && <View style={styles.recordingDot} />}
+        </View>
+        {/* Rep count display */}
+        <View style={styles.repCountContainer}>
+          <Text style={styles.repCountText}>Repetições: {repCount}</Text>
+          <Text style={styles.stageText}>Fase: {exerciseStage || 'Nenhuma'}</Text>
+          {repCount > 10 && (
+            <Text style={styles.congratulationText}>Bom trabalho! Você completou mais de 10 repetições!</Text>
+          )}
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <View style={StyleSheet.absoluteFill} onLayout={onLayout}>
-      <Camera
-        ref={cameraRef}
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={cameraActive}
-        frameProcessor={poseDetectionProcessor}
-        resizeMode="contain"
-        {...cameraComponentProps}
-      />
-      {containerSize && (
-        <Canvas style={StyleSheet.absoluteFill}>
-          {drawSkeleton()}
-        </Canvas>
-      )}
-      {/* Animation overlay in top-right */}
-      <View style={styles.animationContainer}>
-        <ExerciseAnimationPreview
-          animationData={parsedExercise?.exercise.animationData}
-          width={150}
-          height={150}
-        />
-      </View>
-      {/* Recording controls - top-right below animation */}
-      <View style={styles.recordControlContainer}>
-          <Pressable
-          style={styles.flipButton}
-          onPress={() => setCameraPosition(prev => prev === 'front' ? 'back' : 'front')}
-          accessibilityLabel="Trocar câmera"
-        >
-          <MaterialIcons name="flip-camera-android" size={22} color="white" />
-        </Pressable>
-        {!isRecording ? (
-          <Pressable style={styles.recordButton} onPress={startRecording} accessibilityLabel="Iniciar gravação">
-            <MaterialIcons name="fiber-manual-record" size={20} color="white" />
-          </Pressable>
-        ) : (
-          <Pressable style={[styles.recordButton, styles.recording]} onPress={stopRecording} accessibilityLabel="Parar gravação">
-            <MaterialIcons name="stop" size={20} color="white" />
-          </Pressable>
-        )}
-        {isRecording && <View style={styles.recordingDot} />}
-      </View>
-      {/* Rep count display */}
-      <View style={styles.repCountContainer}>
-        <Text style={styles.repCountText}>Repetições: {repCount}</Text>
-        <Text style={styles.stageText}>Fase: {exerciseStage || 'Nenhuma'}</Text>
-        {repCount > 10 && (
-          <Text style={styles.congratulationText}>Bom trabalho! Você completou mais de 10 repetições!</Text>
-        )}
-      </View>
-    </View>
+    <AnimatedBackground contentClassName="relative">
+      {content}
+    </AnimatedBackground>
   );
 }
 

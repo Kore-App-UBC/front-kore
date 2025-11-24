@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Modal, RefreshControl, ScrollView, TouchableOpacity } from 'react-native';
+import AnimatedBackground from '../components/AnimatedBackground';
 import CustomAlert from '../components/CustomAlert';
 import ExerciseAnimationPreview from '../components/ExerciseAnimationPreview';
 import { ThemedText } from '../components/themed-text';
@@ -21,6 +22,7 @@ export default function PatientsScreen() {
   const [prescribedExercises, setPrescribedExercises] = useState<PrescribedExercise[]>([]);
   const [prescriptionLoading, setPrescriptionLoading] = useState(false);
   const [alertState, setAlertState] = useState(getAlertState());
+  const [exerciseActionLoadingId, setExerciseActionLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPatients();
@@ -69,7 +71,7 @@ export default function PatientsScreen() {
       setExercises(availableExercises);
       setPrescribedExercises(prescribed);
     } catch (error) {
-      showAlert('Error', 'Failed to load exercises');
+      showAlert('Erro', 'Falha ao carregar exercícios');
       console.error(error);
     } finally {
       setPrescriptionLoading(false);
@@ -80,12 +82,15 @@ export default function PatientsScreen() {
     if (!selectedPatient) return;
 
     try {
+      setExerciseActionLoadingId(exerciseId);
       await apiService.prescribeExercise(selectedPatient.id, exerciseId);
-      showAlert('Success', 'Exercise prescribed successfully');
+      showAlert('Sucesso', 'Exercício prescrito com sucesso');
       await fetchExercisesForPatient(selectedPatient.id);
     } catch (error) {
-      showAlert('Error', 'Failed to prescribe exercise');
+      showAlert('Erro', 'Falha ao prescrever exercício');
       console.error(error);
+    } finally {
+      setExerciseActionLoadingId(null);
     }
   };
 
@@ -93,12 +98,15 @@ export default function PatientsScreen() {
     if (!selectedPatient) return;
 
     try {
+      setExerciseActionLoadingId(exerciseId);
       await apiService.removePrescribedExercise(selectedPatient.id, exerciseId);
-      showAlert('Success', 'Prescription removed successfully');
+      showAlert('Sucesso', 'Prescrição removida com sucesso');
       await fetchExercisesForPatient(selectedPatient.id);
     } catch (error) {
-      showAlert('Error', 'Failed to remove prescription');
+      showAlert('Erro', 'Falha ao remover prescrição');
       console.error(error);
+    } finally {
+      setExerciseActionLoadingId(null);
     }
   };
 
@@ -111,29 +119,6 @@ export default function PatientsScreen() {
       <ThemedText className="text-muted">{item.user.email}</ThemedText>
     </TouchableOpacity>
   );
-
-  if (loading && !refreshing) {
-    return (
-      <ThemedView variant="transparent" className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#7F5AF0" />
-        <ThemedText className="text-lg text-muted mt-4">Carregando pacientes...</ThemedText>
-      </ThemedView>
-    );
-  }
-
-  if (error) {
-    return (
-      <ThemedView variant="transparent" className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg text-danger mb-4">{error}</ThemedText>
-        <TouchableOpacity
-          className="px-5 py-3 bg-accent rounded-2xl"
-          onPress={fetchPatients}
-        >
-          <ThemedText className="text-white">Tentar novamente</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-    );
-  }
 
   const renderPrescriptionModal = () => (
     <Modal visible={prescriptionModalVisible} animationType="slide" transparent>
@@ -156,15 +141,20 @@ export default function PatientsScreen() {
                         <ThemedText className="font-semibold">{exercise.name}</ThemedText>
                         <ThemedText className="text-sm text-muted mb-2">{exercise.description}</ThemedText>
                         <TouchableOpacity
-                          className={`px-3 py-1 rounded-2xl self-start ${exercise.isPrescribed ? 'bg-danger' : 'bg-success'}`}
+                          className={`px-3 py-1 rounded-2xl self-start ${exercise.isPrescribed ? 'bg-danger' : 'bg-success'} ${exerciseActionLoadingId === exercise.id ? 'opacity-70' : ''}`}
+                          disabled={exerciseActionLoadingId === exercise.id}
                           onPress={() => exercise.isPrescribed
                             ? handleRemovePrescription(exercise.id)
                             : handlePrescribeExercise(exercise.id)
                           }
                         >
-                          <ThemedText className="text-white text-sm">
-                            {exercise.isPrescribed ? 'Remover' : 'Prescrever'}
-                          </ThemedText>
+                          {exerciseActionLoadingId === exercise.id ? (
+                            <ActivityIndicator size="small" color="#FFFFFF" />
+                          ) : (
+                            <ThemedText className="text-white text-sm">
+                              {exercise.isPrescribed ? 'Remover' : 'Prescrever'}
+                            </ThemedText>
+                          )}
                         </TouchableOpacity>
                       </ThemedView>
                       {exercise.animationData && (
@@ -207,7 +197,7 @@ export default function PatientsScreen() {
     </Modal>
   );
 
-  return (
+  let content = (
     <ThemedView variant="transparent" className="flex-1">
       <ThemedText type="title" className="p-4">Meus pacientes</ThemedText>
       {patients.length === 0 ? (
@@ -224,9 +214,34 @@ export default function PatientsScreen() {
           }
         />
       )}
+    </ThemedView>
+  );
 
+  if (loading && !refreshing) {
+    content = (
+      <ThemedView variant="transparent" className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#7F5AF0" />
+        <ThemedText className="text-lg text-muted mt-4">Carregando pacientes...</ThemedText>
+      </ThemedView>
+    );
+  } else if (error) {
+    content = (
+      <ThemedView variant="transparent" className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg text-danger mb-4">{error}</ThemedText>
+        <TouchableOpacity
+          className="px-5 py-3 bg-accent rounded-2xl"
+          onPress={fetchPatients}
+        >
+          <ThemedText className="text-white">Tentar novamente</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  }
+
+  return (
+    <AnimatedBackground>
+      {content}
       {renderPrescriptionModal()}
-
       <CustomAlert
         visible={alertState.visible}
         title={alertState.title}
@@ -234,6 +249,6 @@ export default function PatientsScreen() {
         buttons={alertState.buttons}
         onDismiss={() => setAlertState(prev => ({ ...prev, visible: false }))}
       />
-    </ThemedView>
+    </AnimatedBackground>
   );
 }

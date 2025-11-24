@@ -2,6 +2,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
@@ -109,34 +110,12 @@ export default function SubmissionQueueScreen() {
     </TouchableOpacity>
   );
 
-  if (loading && !refreshing) {
-    return (
-      <ThemedView className="flex-1 justify-center items-center">
-  <ThemedText className="text-lg">Carregando envios...</ThemedText>
-      </ThemedView>
-    );
-  }
-
-  if (error) {
-    return (
-      <ThemedView className="flex-1 justify-center items-center">
-        <ThemedText className="text-lg text-red-500 mb-4">{error}</ThemedText>
-        <TouchableOpacity
-            className="px-4 py-2 bg-[#0a7ea4] rounded"
-          onPress={fetchSubmissions}
-        >
-          <ThemedText className="text-white">Tentar novamente</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-    );
-  }
-
-  return (
+  let content = (
     <ThemedView className="flex-1">
       <ScrollView className='flex flex-col items-center w-full pb-32'>
-  <ThemedText type="title" className="p-4">Fila de envios</ThemedText>
+        <ThemedText type="title" className="p-4">Fila de envios</ThemedText>
         {submissions.length === 0 ? (
-            <ThemedView className="flex-1 justify-center items-center">
+          <ThemedView className="flex-1 justify-center items-center">
             <ThemedText className="text-lg">Nenhum envio para revisar</ThemedText>
           </ThemedView>
         ) : (
@@ -151,5 +130,31 @@ export default function SubmissionQueueScreen() {
         )}
       </ScrollView>
     </ThemedView>
+  );
+
+  if (loading && !refreshing) {
+    content = (
+      <ThemedView className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg">Carregando envios...</ThemedText>
+      </ThemedView>
+    );
+  } else if (error) {
+    content = (
+      <ThemedView className="flex-1 justify-center items-center">
+        <ThemedText className="text-lg text-red-500 mb-4">{error}</ThemedText>
+        <TouchableOpacity
+          className="px-4 py-2 bg-[#0a7ea4] rounded"
+          onPress={fetchSubmissions}
+        >
+          <ThemedText className="text-white">Tentar novamente</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  }
+
+  return (
+    <AnimatedBackground>
+      {content}
+    </AnimatedBackground>
   );
 }

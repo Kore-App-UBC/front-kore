@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+ 
+import AnimatedBackground from '../components/AnimatedBackground';
 import CustomAlert from '../components/CustomAlert';
 import Dropdown from '../components/Dropdown';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
 import { apiService } from '../services/api';
-import { AssignPhysioData, CreatePatientData, Exercise, Patient, Physio, PhysioDropdownOption, PrescribeExerciseData, UpdatePatientData } from '../types';
+import { AssignPhysioData, CreatePatientData, Patient, PhysioDropdownOption, PrescribeExerciseData, UpdatePatientData } from '../types';
 import { getAlertState, hideAlert, registerAlertSetter, showAlert } from '../utils/alert';
 
 export default function ManagePatientsScreen() {
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [physios, setPhysios] = useState<Physio[]>([]);
   const [physioOptions, setPhysioOptions] = useState<PhysioDropdownOption[]>([]);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -66,7 +66,6 @@ export default function ManagePatientsScreen() {
     }
   }, []);
 
-  // Fetch patients and physio options on component mount
   useEffect(() => {
     fetchPatients();
     fetchPhysioOptions();
@@ -330,18 +329,19 @@ export default function ManagePatientsScreen() {
   );
 
   return (
-    <ScrollView className="flex-1 pb-32">
-      <ThemedView variant="transparent" className="p-6">
-  <ThemedText type="title" className="mb-6">Gerenciar pacientes</ThemedText>
+    <AnimatedBackground>
+      <ScrollView className="flex-1 pb-32">
+        <ThemedView variant="transparent" className="p-6 !bg-transparent">
+          <ThemedText type="title" className="mb-6">Gerenciar pacientes</ThemedText>
 
-        <TouchableOpacity
-          className="bg-accent p-4 rounded-3xl mb-6"
-          onPress={() => openModal('create')}
-        >
-          <ThemedText className="text-white text-center font-bold">Criar novo paciente</ThemedText>
-        </TouchableOpacity>
+          <TouchableOpacity
+            className="bg-accent p-4 rounded-3xl mb-6"
+            onPress={() => openModal('create')}
+          >
+            <ThemedText className="text-white text-center font-bold">Criar novo paciente</ThemedText>
+          </TouchableOpacity>
 
-  <ThemedText type="subtitle" className="mb-4">Ações do paciente</ThemedText>
+          <ThemedText type="subtitle" className="mb-4">Ações do paciente</ThemedText>
 
         {fetchLoading ? (
           <ActivityIndicator size="large" color="#7F5AF0" />
@@ -369,16 +369,13 @@ export default function ManagePatientsScreen() {
               <ThemedView className="flex-row space-x-2">
                 <TouchableOpacity
                   className="bg-success px-3 py-3 rounded-2xl flex-1"
-                  onPress={() => openModal('assign', patient)}
+                  onPress={() => {
+                    openModal('assign', patient);
+                    fetchPhysioOptions();
+                  }}
                 >
                   <ThemedText className="text-white text-center text-sm">Atribuir fisioterapeuta</ThemedText>
                 </TouchableOpacity>
-                {/* <TouchableOpacity
-                  className="bg-purple-500 px-3 py-2 rounded flex-1"
-                  onPress={() => openModal('prescribe', patient)}
-                >
-                  <ThemedText className="text-white text-center text-sm">Prescribe Exercise</ThemedText>
-                </TouchableOpacity> */}
               </ThemedView>
             </ThemedView>
           ))
@@ -394,6 +391,7 @@ export default function ManagePatientsScreen() {
           onDismiss={hideAlert}
         />
       </ThemedView>
-    </ScrollView>
+      </ScrollView>
+    </AnimatedBackground>
   );
 }

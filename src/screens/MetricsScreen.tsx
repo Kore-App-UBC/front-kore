@@ -1,7 +1,7 @@
-import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import Svg, { Circle, G, Rect, Text as SvgText } from 'react-native-svg';
+import AnimatedBackground from '../components/AnimatedBackground';
 import CustomAlert from '../components/CustomAlert';
 import { ThemedText } from '../components/themed-text';
 import { ThemedView } from '../components/themed-view';
@@ -103,7 +103,6 @@ export default function MetricsScreen() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
   const [alertState, setAlertState] = useState(getAlertState());
 
   useEffect(() => {
@@ -128,55 +127,13 @@ export default function MetricsScreen() {
     }
   };
 
-  if (loading) {
-    return (
-      <>
-        <ThemedView variant="transparent" className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#7F5AF0" />
-            <ThemedText className="mt-4">Carregando métricas...</ThemedText>
-        </ThemedView>
-        <CustomAlert
-          visible={alertState.visible}
-          title={alertState.title}
-          message={alertState.message}
-          buttons={alertState.buttons}
-          onDismiss={hideAlert}
-        />
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <ThemedView variant="transparent" className="flex-1 justify-center items-center p-4">
-          <ThemedText className="text-danger text-center mb-4">{error}</ThemedText>
-          <ThemedText
-            className="text-accent underline"
-            onPress={fetchMetrics}
-          >
-              Tentar novamente
-          </ThemedText>
-        </ThemedView>
-        <CustomAlert
-          visible={alertState.visible}
-          title={alertState.title}
-          message={alertState.message}
-          buttons={alertState.buttons}
-          onDismiss={hideAlert}
-        />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <ScrollView className="flex-1 pb-32">
-        <ThemedView variant="transparent" className="p-6">
+  let content = (
+    <ScrollView className="flex-1 pb-32 bg-transparent">
+      <ThemedView variant="transparent" className="p-6 !bg-transparent">
         <ThemedText type="title" className="mb-6">Métricas</ThemedText>
 
         {metrics && (
-          <ThemedView className="gap-4">
+          <ThemedView variant='transparent' className="gap-4 shadow-none !bg-transparent">
             <ThemedView variant="surface" className="p-5 rounded-3xl">
               <ThemedText type="subtitle" className="mb-2">Total de pacientes</ThemedText>
               <ThemedText className="text-2xl font-bold text-accent">{metrics.totalPatients}</ThemedText>
@@ -254,7 +211,35 @@ export default function MetricsScreen() {
           </ThemedView>
         )}
       </ThemedView>
-      </ScrollView>
+    </ScrollView>
+  );
+
+  if (loading) {
+    content = (
+      <ThemedView variant="transparent" className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#7F5AF0" />
+        <ThemedText className="mt-4">Carregando métricas...</ThemedText>
+      </ThemedView>
+    );
+  } else if (error) {
+    content = (
+      <ThemedView variant="transparent" className="flex-1 justify-center items-center p-4">
+        <ThemedText className="text-danger text-center mb-4">{error}</ThemedText>
+        <ThemedText
+          className="text-accent underline"
+          onPress={fetchMetrics}
+        >
+          Tentar novamente
+        </ThemedText>
+      </ThemedView>
+    );
+  }
+
+  return (
+    <>
+      <AnimatedBackground>
+        {content}
+      </AnimatedBackground>
       <CustomAlert
         visible={alertState.visible}
         title={alertState.title}

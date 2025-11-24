@@ -54,6 +54,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    width: 40,
+    textAlign: 'center',
   },
   content: {
     flexDirection: 'row',

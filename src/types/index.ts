@@ -95,7 +95,7 @@ export interface Submission {
     submissionId: string
     iaAnalysis: {
       accuracy: number
-      corrections: Array<string>
+      corrections: string[]
     }
     physioFeedback: string
     finalizedAt: string
@@ -213,7 +213,7 @@ export interface SubmissionQueueItem {
     submissionId: string
     iaAnalysis: {
       accuracy: number
-      corrections: Array<string>
+      corrections: string[]
     }
     physioFeedback: any
     finalizedAt: any
@@ -243,7 +243,7 @@ export interface SubmissionQueueItem {
     description: string
     instructionsUrl: string
     classificationData: {
-      landmarks: Array<string>
+      landmarks: string[]
       thresholds: {
         up: number
         down: number
@@ -251,35 +251,35 @@ export interface SubmissionQueueItem {
       evaluationType: string
     }
     animationData: {
-      keyframes: Array<{
+      keyframes: {
         progress: number
-        transformations: Array<{
+        transformations: {
           type: string
           joint: string
-          offset?: Array<number>
+          offset?: number[]
           relativeTo?: string
           axis?: string
           angle?: number
           distance?: number
           pivotJoint?: string
-        }>
-      }>
+        }[]
+      }[]
       basePoints: {
-        head: Array<number>
-        neck: Array<number>
-        mid_hip: Array<number>
-        left_hip: Array<number>
-        left_knee: Array<number>
-        right_hip: Array<number>
-        left_ankle: Array<number>
-        left_elbow: Array<number>
-        left_wrist: Array<number>
-        right_knee: Array<number>
-        right_ankle: Array<number>
-        right_elbow: Array<number>
-        right_wrist: Array<number>
-        left_shoulder: Array<number>
-        right_shoulder: Array<number>
+        head: number[]
+        neck: number[]
+        mid_hip: number[]
+        left_hip: number[]
+        left_knee: number[]
+        right_hip: number[]
+        left_ankle: number[]
+        left_elbow: number[]
+        left_wrist: number[]
+        right_knee: number[]
+        right_ankle: number[]
+        right_elbow: number[]
+        right_wrist: number[]
+        left_shoulder: number[]
+        right_shoulder: number[]
       }
       animationType: string
     }
@@ -293,7 +293,7 @@ export interface SubmissionDetail {
   patientId: string
   exerciseId: string
   videoUrl: string
-  patientComments: any
+  patientComments: string
   status: string
   submittedAt: string
   createdAt: string
@@ -303,7 +303,7 @@ export interface SubmissionDetail {
     submissionId: string
     iaAnalysis: {
       accuracy: number
-      corrections: Array<string>
+      corrections: string[]
     }
     physioFeedback: any
     finalizedAt: any
@@ -333,7 +333,7 @@ export interface SubmissionDetail {
     description: string
     instructionsUrl: string
     classificationData: {
-      landmarks: Array<string>
+      landmarks: string[]
       thresholds: {
         up: number
         down: number
@@ -341,35 +341,35 @@ export interface SubmissionDetail {
       evaluationType: string
     }
     animationData: {
-      keyframes: Array<{
+      keyframes: {
         progress: number
-        transformations: Array<{
+        transformations: {
           type: string
           joint: string
-          offset?: Array<number>
+          offset?: number[]
           relativeTo?: string
           axis?: string
           angle?: number
           distance?: number
           pivotJoint?: string
-        }>
-      }>
+        }[]
+      }[]
       basePoints: {
-        head: Array<number>
-        neck: Array<number>
-        mid_hip: Array<number>
-        left_hip: Array<number>
-        left_knee: Array<number>
-        right_hip: Array<number>
-        left_ankle: Array<number>
-        left_elbow: Array<number>
-        left_wrist: Array<number>
-        right_knee: Array<number>
-        right_ankle: Array<number>
-        right_elbow: Array<number>
-        right_wrist: Array<number>
-        left_shoulder: Array<number>
-        right_shoulder: Array<number>
+        head: number[]
+        neck: number[]
+        mid_hip: number[]
+        left_hip: number[]
+        left_knee: number[]
+        right_hip: number[]
+        left_ankle: number[]
+        left_elbow: number[]
+        left_wrist: number[]
+        right_knee: number[]
+        right_ankle: number[]
+        right_elbow: number[]
+        right_wrist: number[]
+        left_shoulder: number[]
+        right_shoulder: number[]
       }
       animationType: string
     }
@@ -392,11 +392,11 @@ export interface Metrics {
   totalExercises: number;
 
   // Aggregations for prescriptions grouped by exercise (optional)
-  exercisesByPrescription?: Array<{
+  exercisesByPrescription?: {
     exerciseId: string;
     exerciseName: string | null;
     prescribedCount: number;
-  }>;
+  }[];
 
   // Submission/session counts (field names differ between implementations)
   // prefer the explicit names from the manager endpoint if present
