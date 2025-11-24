@@ -8,6 +8,14 @@
     "scheme": "korefront",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#8c4bff",
+      "dark": {
+        "backgroundColor": "#8c4bff"
+      }
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.renatex314.korefront"
